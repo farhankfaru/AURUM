@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURUM - Timeless Menswear</title>
+    <link rel="stylesheet" href="../css/homepage.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Playfair+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <!-- Logo -->
+                <div class="nav-brand">
+                    <span class="brand-name">AURUM</span>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <div class="nav-menu" id="nav-menu">
+                    <ul class="nav-links">
+                        <li><a href="#home" class="nav-link active">HOME</a></li>
+                        <li><a href="#shop" class="nav-link">SHOP</a></li>
+                        <li><a href="#collection" class="nav-link">COLLECTION</a></li>
+                        <li><a href="#about" class="nav-link">ABOUT</a></li>
+                        <li><a href="#contact" class="nav-link">CONTACT</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Right Icons -->
+                <div class="nav-icons">
+                    <div class="icon-wrapper">
+                        <i class="far fa-heart nav-icon" title="Wishlist"></i>
+                        <span class="icon-badge">0</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <i class="fas fa-shopping-bag nav-icon" title="Cart"></i>
+                        <span class="icon-badge">0</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <i class="far fa-user nav-icon" title="Profile"></i>
+                    </div>
+                </div>
+                
+                <!-- Hamburger Menu -->
+                <div class="hamburger" id="hamburger">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section with Style Selector -->
+    <section class="hero dark-overlay" id="home">
+        <!-- Style Selector -->
+        <div class="hero-style-selector">
+            <button class="style-btn active" data-style="dark-overlay">Classic</button>
+            <button class="style-btn" data-style="minimal-clean">Minimal</button>
+            <button class="style-btn" data-style="gradient-accent">Elegant</button>
+        </div>
+        
+        <!-- Hero Background -->
+        <div class="hero-background">
+            <div class="hero-image"></div>
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="title-line">Explore</span>
+                    <span class="title-line">Collections</span>
+                </h1>
+                <p class="hero-subtitle">Discover timeless fashion pieces that elevate your style</p>
+                <button class="hero-btn">
+                    <span>Explore Collection</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="collection">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Explore by Category</h2>
+                <div class="section-line"></div>
+            </div>
+            
+            <div class="category-grid">
+                <div class="category-card">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="Classic Suits" loading="lazy" />
+                        <div class="category-overlay">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Classic Suits</h3>
+                        <p class="category-description">Impeccably tailored suits crafted from the finest British wools and Italian fabrics</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1506629905138-d3eec3dadcd8?w=400&h=500&fit=crop&crop=center" alt="Linen Essentials" loading="lazy" />
+                        <div class="category-overlay">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Linen Essentials</h3>
+                        <p class="category-description">Premium linen shirts and trousers perfect for sophisticated casual elegance</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=500&fit=crop&crop=center" alt="Polo Collection" loading="lazy" />
+                        <div class="category-overlay">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Polo Collection</h3>
+                        <p class="category-description">Refined polo shirts in premium cotton and cashmere for distinguished leisure wear</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section class="products new-arrivals" id="shop">
+        <div class="container">
+            <div class="section-header-with-button">
+                <div class="section-header-left">
+                    <h2 class="section-title">New Arrivals</h2>
+                </div>
+                <button class="view-all-btn">View All</button>
+            </div>
+            
+            <div class="product-grid">
+                <!-- Row 1 -->
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300&h=400&fit=crop" alt="Navy Linen Blazer" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Navy Linen Blazer</h3>
+                        <div class="product-price">$485.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1506629905138-d3eec3dadcd8?w=300&h=400&fit=crop" alt="White Linen Shirt" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">White Linen Shirt</h3>
+                        <div class="product-price">$165.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=300&h=400&fit=crop" alt="Olive Cotton Polo" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Olive Cotton Polo</h3>
+                        <div class="product-price">$125.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&h=400&fit=crop" alt="Beige Linen Trousers" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Beige Linen Trousers</h3>
+                        <div class="product-price">$235.00</div>
+                    </div>
+                </div>
+                
+                <!-- Row 2 -->
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1618886614638-80e3c103d31a?w=300&h=400&fit=crop" alt="Leather Loafers" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Leather Loafers</h3>
+                        <div class="product-price">$315.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1564859228273-274232fdb516?w=300&h=400&fit=crop" alt="Cashmere V-Neck" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Cashmere V-Neck</h3>
+                        <div class="product-price">$285.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=300&h=400&fit=crop" alt="Chambray Shirt" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Chambray Shirt</h3>
+                        <div class="product-price">$145.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=300&h=400&fit=crop" alt="Suede Desert Boots" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Suede Desert Boots</h3>
+                        <div class="product-price">$265.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Sellers Section -->
+    <section class="products best-sellers">
+        <div class="container">
+            <div class="section-header-with-button">
+                <div class="section-header-left">
+                    <h2 class="section-title">Best Sellers</h2>
+                </div>
+                <button class="view-all-btn">View All</button>
+            </div>
+            
+            <div class="product-grid">
+                <!-- Row 1 -->
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=300&h=400&fit=crop" alt="Khaki Chinos" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Khaki Chinos</h3>
+                        <div class="product-price">$185.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop" alt="Merino Cardigan" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Merino Cardigan</h3>
+                        <div class="product-price">$225.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=400&fit=crop" alt="Oxford Shirt" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Oxford Shirt</h3>
+                        <div class="product-price">$155.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1618554912665-37c6a50acc52?w=300&h=400&fit=crop" alt="Wool Sweater" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Wool Sweater</h3>
+                        <div class="product-price">$195.00</div>
+                    </div>
+                </div>
+                
+                <!-- Row 2 -->
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1583743089695-4b816a340f82?w=300&h=400&fit=crop" alt="Canvas Sneakers" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Canvas Sneakers</h3>
+                        <div class="product-price">$135.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=300&h=400&fit=crop" alt="Cotton T-Shirt" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Cotton T-Shirt</h3>
+                        <div class="product-price">$85.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1549062572-544a64fb0c56?w=300&h=400&fit=crop" alt="Leather Belt" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Leather Belt</h3>
+                        <div class="product-price">$95.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop" alt="Cable Knit Vest" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Cable Knit Vest</h3>
+                        <div class="product-price">$175.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- You May Also Like Section -->
+    <section class="products you-may-like">
+        <div class="container">
+            <div class="section-header-with-button">
+                <div class="section-header-left">
+                    <h2 class="section-title">You May Also Like</h2>
+                </div>
+                <button class="view-all-btn">View All</button>
+            </div>
+            
+            <div class="product-grid">
+                <!-- Row 1 -->
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=300&h=400&fit=crop" alt="Linen Scarf" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Linen Scarf</h3>
+                        <div class="product-price">$75.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1603252109303-2751441dd157?w=300&h=400&fit=crop" alt="Tweed Jacket" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Tweed Jacket</h3>
+                        <div class="product-price">$445.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=300&h=400&fit=crop" alt="Silk Tie" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Silk Tie</h3>
+                        <div class="product-price">$65.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=300&h=400&fit=crop" alt="Wool Coat" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Wool Coat</h3>
+                        <div class="product-price">$565.00</div>
+                    </div>
+                </div>
+                
+                <!-- Row 2 -->
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=300&h=400&fit=crop" alt="Dress Shirt" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Dress Shirt</h3>
+                        <div class="product-price">$135.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1594938337357-0b8d4d2c3e3d?w=300&h=400&fit=crop" alt="Pocket Square" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Pocket Square</h3>
+                        <div class="product-price">$45.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=300&h=400&fit=crop" alt="Cashmere Coat" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Cashmere Coat</h3>
+                        <div class="product-price">$785.00</div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1594938374637-6014575c58eb?w=300&h=400&fit=crop" alt="Linen Shorts" class="product-image" loading="lazy" />
+                        <div class="product-actions">
+                            <button class="wishlist-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <button class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Linen Shorts</h3>
+                        <div class="product-price">$115.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Highlight Section -->
+    <section class="brand-highlight">
+        <div class="container">
+            <div class="brand-content">
+                <div class="brand-text">
+                    <h2 class="brand-title">AURUM</h2>
+                    <p class="brand-description">
+                        Experience the epitome of refined menswear with AURUM's exclusive collection. 
+                        Each piece embodies timeless sophistication, crafted from the finest materials 
+                        and tailored to perfection. Discover clothing that transcends trends and defines elegance.
+                    </p>
+                    <div class="brand-features">
+                        <div class="feature">
+                            <i class="fas fa-crown"></i>
+                            <span>Premium Materials</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-gem"></i>
+                            <span>Timeless Design</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-award"></i>
+                            <span>Heritage Craftsmanship</span>
+                        </div>
+                    </div>
+                    <button class="brand-btn">
+                        <span>Shop Now</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="brand-image">
+                    <img src="https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=600&h=800&fit=crop" alt="AURUM Collection - Burgundy Sweater & Linen Trousers" loading="lazy" />
+                    <div class="brand-image-overlay">
+                        <div class="brand-badge">AURUM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <div class="newsletter-icon">
+                    <i class="fas fa-envelope-open"></i>
+                </div>
+                <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
+                <p class="newsletter-description">
+                    Stay updated with the latest arrivals, exclusive offers, and style tips
+                </p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <div class="input-group">
+                        <input type="email" class="email-input" placeholder="Enter your email address" required />
+                        <button type="submit" class="subscribe-btn">
+                            <span>Subscribe</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-main">
+                <!-- Footer Brand -->
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <span class="brand-name">AURUM</span>
+                    </div>
+                    <p class="footer-description">
+                        Discover timeless menswear that embodies sophistication and elegance. 
+                        Quality craftsmanship meets heritage design in every piece.
+                    </p>
+                </div>
+                
+                <!-- Footer Links -->
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#shop">Shop</a></li>
+                            <li><a href="#collection">Collections</a></li>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Help</h4>
+                        <ul>
+                            <li><a href="#">Size Guide</a></li>
+                            <li><a href="#">Shipping Info</a></li>
+                            <li><a href="#">Returns</a></li>
+                            <li><a href="#">Care Instructions</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Contact</h4>
+                        <ul>
+                            <li><a href="#">Customer Service</a></li>
+                            <li><a href="#">Personal Styling</a></li>
+                            <li><a href="#">Store Locations</a></li>
+                            <li><a href="#">Appointments</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Footer Social -->
+                <div class="footer-social">
+                    <div class="social-icons">
+                        <a href="#" class="social-link facebook" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link instagram" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link twitter" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p class="copyright">&copy; 2025 AURUM. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Navigation Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.classList.toggle('nav-open');
+        });
+
+        // Close mobile menu when clicking nav links
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.classList.remove('nav-open');
+            });
+        });
+
+        // Hero Style Switcher
+        const styleBtns = document.querySelectorAll('.style-btn');
+        const hero = document.querySelector('.hero');
+
+        styleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                styleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const style = btn.dataset.style;
+                hero.className = `hero ${style}`;
+            });
+        });
+
+        // Smooth Scrolling for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Wishlist Toggle Functionality
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const icon = this.querySelector('i');
+                const isActive = this.classList.contains('active');
+                
+                if (isActive) {
+                    this.classList.remove('active');
+                    icon.className = 'far fa-heart';
+                    this.title = 'Add to Wishlist';
+                } else {
+                    this.classList.add('active');
+                    icon.className = 'fas fa-heart';
+                    this.title = 'Remove from Wishlist';
+                    
+                    // Add pulse animation
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                }
+                
+                // Update wishlist badge
+                updateWishlistBadge();
+            });
+        });
+
+        // Update wishlist badge count
+        function updateWishlistBadge() {
+            const activeWishlists = document.querySelectorAll('.wishlist-btn.active').length;
+            const badge = document.querySelector('.nav-icons .icon-badge');
+            if (badge) {
+                badge.textContent = activeWishlists;
+            }
+        }
+
+        // Newsletter Form Submission
+        document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('.email-input').value;
+            
+            if (email) {
+                // Animate button
+                const btn = this.querySelector('.subscribe-btn');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Subscribed!';
+                    this.querySelector('.email-input').value = '';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = '<span>Subscribe</span><i class="fas fa-paper-plane"></i>';
+                        btn.disabled = false;
+                    }, 2000);
+                }, 1000);
+            }
+        });
+
+        // Navbar Background on Scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Product Quick View
+        document.querySelectorAll('.quick-view-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const productTitle = this.closest('.product-card').querySelector('.product-title').textContent;
+                alert(`Quick view for: ${productTitle}\n\nThis would open a product preview modal.`);
+            });
+        });
+
+        // View All Buttons
+        document.querySelectorAll('.view-all-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const sectionTitle = this.closest('.section-header-with-button')
+                                      .querySelector('.section-title').textContent;
+                alert(`View all ${sectionTitle}\n\nThis would navigate to the full product listing.`);
+            });
+        });
+
+        // Parallax Effect for Hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-image');
+            const speed = scrolled * 0.3;
+            
+            if (parallax) {
+                parallax.style.transform = `translateY(${speed}px)`;
+            }
+        });
+    </script>
+</body>
+</html>
