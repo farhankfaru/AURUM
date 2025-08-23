@@ -12,254 +12,255 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
+            color: #2d3748;
             overflow-x: hidden;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 600px;
             width: 90%;
             text-align: center;
             padding: 2rem;
         }
 
         .error-content {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 4rem 3rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3182ce, #4299e1, #63b3ed);
         }
 
         /* Error Animation */
         .error-animation {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .error-code {
-            font-size: 8rem;
-            font-weight: 900;
-            color: #ff6b6b;
+            font-size: 7rem;
+            font-weight: 800;
+            color: #3182ce;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            animation: bounce 2s infinite;
-            cursor: pointer;
-        }
-
-        .zero {
-            display: inline-block;
-            animation: spin 3s linear infinite;
+            text-shadow: 0 4px 8px rgba(49, 130, 206, 0.2);
+            animation: float 3s ease-in-out infinite;
+            letter-spacing: -0.05em;
         }
 
         .error-text {
-            font-size: 2rem;
+            font-size: 1.75rem;
             color: #4a5568;
-            font-weight: 300;
+            font-weight: 600;
             margin-bottom: 1rem;
+            letter-spacing: -0.025em;
         }
 
         /* Message Section */
         .message {
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
         }
 
         .message h2 {
-            font-size: 1.5rem;
+            font-size: 1.375rem;
             color: #2d3748;
             margin-bottom: 1rem;
             font-weight: 600;
+            line-height: 1.4;
         }
 
         .message p {
             font-size: 1rem;
             color: #718096;
             line-height: 1.6;
-            max-width: 500px;
+            max-width: 450px;
             margin: 0 auto;
         }
 
-        /* Action Buttons */
-        .actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: flex;
+        /* Home Button */
+        .home-button {
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 12px 24px;
+            gap: 0.75rem;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #3182ce 0%, #4299e1 100%);
+            color: white;
             border: none;
-            border-radius: 25px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 1.125rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
-            min-width: 150px;
-            justify-content: center;
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        .home-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
-        .btn-primary:hover {
+        .home-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+            box-shadow: 0 8px 25px rgba(49, 130, 206, 0.4);
+            background: linear-gradient(135deg, #2c5aa0 0%, #3182ce 100%);
         }
 
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-            border: 2px solid #cbd5e0;
+        .home-button:hover::before {
+            left: 100%;
         }
 
-        .btn-secondary:hover {
-            background: #cbd5e0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:active {
+        .home-button:active {
             transform: translateY(0);
         }
 
-        .btn:disabled {
+        .home-button:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
 
-        .icon {
-            font-size: 1.2rem;
+        .home-icon {
+            font-size: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+
+        .home-button:hover .home-icon {
+            transform: scale(1.1);
         }
 
         /* Suggestions */
         .suggestions {
-            border-top: 1px solid #e2e8f0;
+            margin-top: 3rem;
             padding-top: 2rem;
-            margin-top: 1rem;
+            border-top: 1px solid #e2e8f0;
         }
 
         .suggestions h3 {
-            font-size: 1.2rem;
+            font-size: 1.125rem;
             color: #4a5568;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             font-weight: 600;
         }
 
-        .suggestions ul {
+        .suggestions-list {
             list-style: none;
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
             justify-content: center;
             flex-wrap: wrap;
         }
 
-        .suggestions li {
-            margin: 0.5rem 0;
+        .suggestions-list li {
+            margin: 0;
         }
 
-        .suggestions a {
-            color: #667eea;
+        .suggestion-link {
+            color: #3182ce;
             text-decoration: none;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 15px;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
         }
 
-        .suggestions a:hover {
-            background: #edf2f7;
-            color: #5a67d8;
+        .suggestion-link:hover {
+            background: #ebf8ff;
+            color: #2c5aa0;
+            border-color: #bee3f8;
         }
 
         /* Animations */
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
             }
-            40% {
+            50% {
                 transform: translateY(-10px);
             }
-            60% {
-                transform: translateY(-5px);
-            }
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes slideIn {
+        @keyframes slideInUp {
             from {
-                transform: translateX(100%);
                 opacity: 0;
+                transform: translateY(30px);
             }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .float-in {
-            animation: fadeInUp 0.6s ease forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        @keyframes fadeInUp {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .error-content > * {
+            animation: slideInUp 0.6s ease forwards;
+        }
+
+        .error-animation {
+            animation-delay: 0.1s;
+        }
+
+        .message {
+            animation-delay: 0.2s;
+        }
+
+        .home-button {
+            animation-delay: 0.3s;
+        }
+
+        .suggestions {
+            animation-delay: 0.4s;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
             .error-code {
-                font-size: 6rem;
+                font-size: 5rem;
             }
             
             .error-text {
                 font-size: 1.5rem;
             }
             
-            .actions {
+            .error-content {
+                padding: 3rem 2rem;
+            }
+            
+            .home-button {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            
+            .suggestions-list {
                 flex-direction: column;
                 align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 250px;
-            }
-            
-            .suggestions ul {
-                flex-direction: column;
                 gap: 1rem;
-            }
-            
-            .error-content {
-                padding: 2rem 1.5rem;
             }
         }
 
@@ -272,13 +273,35 @@
                 font-size: 4rem;
             }
             
+            .error-content {
+                padding: 2.5rem 1.5rem;
+            }
+            
             .message h2 {
-                font-size: 1.3rem;
+                font-size: 1.25rem;
             }
             
             .message p {
-                font-size: 0.9rem;
+                font-size: 0.95rem;
             }
+
+            .home-button {
+                font-size: 1rem;
+                padding: 14px 28px;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .home-button:focus,
+        .suggestion-link:focus {
+            outline: 2px solid #4299e1;
+            outline-offset: 2px;
+        }
+
+        /* Loading state */
+        .loading {
+            background: linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%);
+            pointer-events: none;
         }
     </style>
 </head>
@@ -286,162 +309,110 @@
     <div class="container">
         <div class="error-content">
             <div class="error-animation">
-                <div class="error-code">4<span class="zero">0</span>4</div>
+                <div class="error-code">404</div>
                 <div class="error-text">Page Not Found</div>
             </div>
             
             <div class="message">
-                <h2>Oops! Something went wrong</h2>
-                <p>The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.</p>
+                <h2>We can't seem to find the page you're looking for</h2>
+                <p>The page you requested might have been moved, deleted, or the URL was entered incorrectly. Don't worry, it happens to the best of us.</p>
             </div>
             
-            <div class="actions">
-                <button id="homeBtn" class="btn btn-primary">
-                    <span class="icon">🏠</span>
-                    Go Back to Home
-                </button>
-                <button id="backBtn" class="btn btn-secondary">
-                    <span class="icon">←</span>
-                    Go Back
-                </button>
-            </div>
+            <button id="homeBtn" class="home-button">
+                <span class="home-icon">🏠</span>
+                Back to Home
+            </button>
             
             <div class="suggestions">
-                <h3>You might want to:</h3>
-                <ul>
-                    <li><a href="/">Visit our homepage</a></li>
-                    <li><a href="/contact">Contact support</a></li>
-                    <li><a href="/search">Search our site</a></li>
+                <h3>Here are some helpful links:</h3>
+                <ul class="suggestions-list">
+                    <li><a href="/" class="suggestion-link">Homepage</a></li>
+                    <li><a href="/about" class="suggestion-link">About Us</a></li>
+                    <li><a href="/contact" class="suggestion-link">Contact</a></li>
+                    <li><a href="/help" class="suggestion-link">Help Center</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
-            // Get button elements
             const homeBtn = document.getElementById('homeBtn');
-            const backBtn = document.getElementById('backBtn');
             
             // Home button functionality
             homeBtn.addEventListener('click', function() {
-                // Add loading animation
-                homeBtn.innerHTML = '<span class="icon">⏳</span> Loading...';
+                // Add loading state
+                homeBtn.classList.add('loading');
+                homeBtn.innerHTML = '<span class="home-icon">⏳</span> Loading...';
                 homeBtn.disabled = true;
                 
                 // Simulate loading and redirect
                 setTimeout(() => {
                     window.location.href = '/';
-                }, 500);
+                }, 800);
             });
             
-            // Back button functionality
-            backBtn.addEventListener('click', function() {
-                // Check if there's history to go back to
-                if (window.history.length > 1) {
-                    window.history.back();
-                } else {
-                    // If no history, go to home
-                    window.location.href = '/';
-                }
-            });
-            
-            // Add keyboard navigation
+            // Keyboard navigation
             document.addEventListener('keydown', function(e) {
-                switch(e.key) {
-                    case 'h':
-                    case 'H':
+                if (e.key === 'Enter' || e.key === ' ') {
+                    if (document.activeElement === homeBtn) {
+                        e.preventDefault();
                         homeBtn.click();
-                        break;
-                    case 'b':
-                    case 'B':
-                        backBtn.click();
-                        break;
-                    case 'Escape':
+                    }
+                } else if (e.key === 'h' || e.key === 'H') {
+                    homeBtn.focus();
+                    homeBtn.click();
+                } else if (e.key === 'Escape') {
+                    if (window.history.length > 1) {
                         window.history.back();
-                        break;
+                    } else {
+                        window.location.href = '/';
+                    }
                 }
             });
             
-            // Add interactive effects to 404 number
+            // Enhanced accessibility
+            homeBtn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+            
+            // Performance optimization
+            const prefetchLink = document.createElement('link');
+            prefetchLink.rel = 'prefetch';
+            prefetchLink.href = '/';
+            document.head.appendChild(prefetchLink);
+            
+            // Subtle interaction feedback
             const errorCode = document.querySelector('.error-code');
-            let clickCount = 0;
+            let hoverCount = 0;
             
-            errorCode.addEventListener('click', function() {
-                clickCount++;
-                
-                if (clickCount === 5) {
-                    // Easter egg after 5 clicks
-                    errorCode.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4)';
-                    errorCode.style.webkitBackgroundClip = 'text';
-                    errorCode.style.webkitTextFillColor = 'transparent';
-                    errorCode.style.backgroundClip = 'text';
-                    
-                    // Show a fun message
-                    const message = document.createElement('div');
-                    message.textContent = '🎉 You found the easter egg! 🎉';
-                    message.style.cssText = `
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        background: #4ecdc4;
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 25px;
-                        font-weight: bold;
-                        z-index: 1000;
-                        animation: slideIn 0.5s ease;
-                    `;
-                    
-                    document.body.appendChild(message);
-                    
-                    // Remove message after 3 seconds
+            errorCode.addEventListener('mouseenter', function() {
+                hoverCount++;
+                if (hoverCount === 3) {
+                    this.style.color = '#2c5aa0';
                     setTimeout(() => {
-                        if (message.parentNode) {
-                            message.remove();
-                        }
-                    }, 3000);
+                        this.style.color = '#3182ce';
+                    }, 1000);
                 }
             });
             
-            // Add floating animation to suggestions
-            const suggestions = document.querySelectorAll('.suggestions a');
-            suggestions.forEach((link, index) => {
-                link.style.animationDelay = `${index * 0.1}s`;
-                link.classList.add('float-in');
-            });
-            
-            // Performance optimization - preload home page
-            const link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = '/';
-            document.head.appendChild(link);
-            
-            // Console message for developers
-            console.log(`
-            🚀 404 Page Loaded Successfully!
-            
-            Keyboard shortcuts:
-            - Press 'H' to go home
-            - Press 'B' to go back
-            - Press 'Escape' to go back
-            
-            Try clicking the 404 number 5 times for a surprise! 😉
-            `);
+            console.log('🚀 Professional 404 Page Loaded\n💡 Press "H" to go home or "Escape" to go back');
         });
 
-        // Add some fun interactions
-        document.addEventListener('mousemove', function(e) {
-            const errorCode = document.querySelector('.error-code');
-            const rect = errorCode.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            
-            // Subtle parallax effect
-            if (Math.abs(x) < rect.width && Math.abs(y) < rect.height) {
-                errorCode.style.transform = `translate(${x * 0.01}px, ${y * 0.01}px)`;
-            }
+        // Smooth scroll behavior for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
         });
     </script>
 </body>
