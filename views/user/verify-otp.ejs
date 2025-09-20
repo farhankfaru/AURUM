@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - AURUM</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            background: #fff;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        /* Image Section - Old Money Style */
+        .image-section {
+            flex: 1;
+            background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
+            background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(139,115,85,0.9) 0%, rgba(160,149,107,0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .brand-info h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            animation: slideInUp 1s ease-out;
+            letter-spacing: 0.2em;
+            color: #F5F5DC;
+        }
+        .brand-info p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            max-width: 450px;
+            opacity: 0.95;
+            animation: slideInUp 1s ease-out 0.2s both;
+            line-height: 1.8;
+            color: #F5F5DC;
+        }
+
+        /* Form Section */
+        .form-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #ffffff;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 450px;
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .form-header h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #8B7355;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+        .form-header p {
+            color: #6B5B47;
+            font-size: 1rem;
+            font-style: italic;
+        }
+
+        .email-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #F5F5DC;
+            border-radius: 12px;
+            border-left: 4px solid #8B7355;
+            text-align: center;
+        }
+
+        .email-info strong {
+            color: #8B7355;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .otp-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border: 2px solid #D4C4A8;
+            border-radius: 12px;
+            background: #FEFCF7;
+            color: #8B7355;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .otp-input:focus {
+            border-color: #8B7355;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .otp-input.error {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 115, 85, 0.3);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .resend-section {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6B5B47;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #8B7355;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .resend-btn:hover {
+            color: #6B5B47;
+        }
+
+        .resend-btn:disabled {
+            color: #999;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .timer {
+            color: #8B7355;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px);}
+            to { opacity: 1; transform: translateX(0);}
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { flex-direction: column;}
+            .image-section { min-height: 30vh; flex: none;}
+            .brand-info h1 { font-size: 2.5rem;}
+            .brand-info p { font-size: 1.1rem;}
+            .form-section { padding: 1.5rem;}
+            .form-header h2 { font-size: 1.8rem;}
+        }
+        @media (max-width: 480px) {
+            .form-section { padding: 1rem;}
+            .otp-inputs { gap: 0.3rem;}
+            .otp-input { width: 45px; height: 55px; font-size: 1.3rem;}
+        }
+
+        /* Custom SweetAlert styling */
+        .swal2-popup {
+            border-radius: 15px !important;
+        }
+        
+        .swal2-confirm {
+            background-color: #8B7355 !important;
+            border-radius: 8px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Side - Image Section -->
+        <div class="image-section">
+            <div class="overlay">
+                <div class="brand-info">
+                    <h1>AURUM</h1>
+                    <p>Complete your verification to join our exclusive world of timeless elegance.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Form Section -->
+        <div class="form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Verify Your Account</h2>
+                    <p>Enter the 6-digit code sent to your email</p>
+                </div>
+                
+                <div class="email-info">
+                    We've sent a verification code to<br>
+                    <strong><%= email %></strong>
+                </div>
+
+                <form id="otpForm">
+                    <div class="otp-inputs">
+                        <input type="text" maxlength="1" class="otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input" required>
+                    </div>
+                    
+                    <button type="submit" class="verify-btn" id="verifyBtn">
+                        <span id="btnText">Verify & Continue</span>
+                        <div class="loading" id="loader"></div>
+                    </button>
+                </form>
+
+                <div class="resend-section">
+                    Didn't receive the code? 
+                    <button id="resendBtn" type="button" class="resend-btn">Resend OTP</button>
+                    <span id="timer" class="timer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const otpInputs = document.querySelectorAll(".otp-input");
+        const form = document.getElementById("otpForm");
+        const verifyBtn = document.getElementById("verifyBtn");
+        const btnText = document.getElementById("btnText");
+        const loader = document.getElementById("loader");
+        const resendBtn = document.getElementById("resendBtn");
+        const timerSpan = document.getElementById("timer");
+
+        // Auto-focus first input
+        otpInputs[0].focus();
+
+        // OTP input handling with improved UX
+        otpInputs.forEach((input, index) => {
+            // Handle input
+            input.addEventListener("input", (e) => {
+                const value = e.target.value;
+                
+                // Only allow numbers
+                if (!/^\d$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+
+                // Move to next input
+                if (value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+
+                // Clear error styling
+                input.classList.remove('error');
+            });
+
+            // Handle backspace
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace") {
+                    if (!input.value && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                    input.classList.remove('error');
+                }
+            });
+
+            // Handle paste
+            input.addEventListener("paste", (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                const digits = pastedData.replace(/\D/g, '').slice(0, 6);
+                
+                digits.split('').forEach((digit, i) => {
+                    if (otpInputs[i]) {
+                        otpInputs[i].value = digit;
+                    }
+                });
+                
+                // Focus the next empty input or last input
+                const nextEmpty = digits.length < 6 ? digits.length : 5;
+                otpInputs[nextEmpty].focus();
+            });
+        });
+
+        // Form submission
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const otp = Array.from(otpInputs).map(input => input.value).join("");
+
+            if (otp.length !== 6) {
+                // Show error styling
+                otpInputs.forEach(input => {
+                    if (!input.value) {
+                        input.classList.add('error');
+                    }
+                });
+                
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid OTP",
+                    text: "Please enter all 6 digits",
+                    confirmButtonColor: "#8B7355"
+                });
+                return;
+            }
+
+            // Show loading state
+            setLoadingState(true);
+
+            try {
+                const res = await fetch("/verify-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ otp })
+                });
+
+                const data = await res.json();
+                setLoadingState(false);
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Welcome to AURUM!",
+                        text: "Your account has been verified successfully",
+                        confirmButtonText: "Continue to Homepage",
+                        confirmButtonColor: "#8B7355"
+                    }).then(() => {
+                        window.location.href = data.redirectUrl;
+                    });
+                } else {
+                    // Show error styling
+                    otpInputs.forEach(input => input.classList.add('error'));
+                    
+                    Swal.fire({
+                        icon: "error",
+                        title: "Verification Failed",
+                        text: data.message,
+                        confirmButtonColor: "#8B7355"
+                    });
+                    
+                    // Clear inputs and focus first
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                }
+            } catch (err) {
+                setLoadingState(false);
+                Swal.fire({
+                    icon: "error",
+                    title: "Server Error",
+                    text: "Something went wrong. Please try again.",
+                    confirmButtonColor: "#8B7355"
+                });
+            }
+        });
+
+        function setLoadingState(loading) {
+            if (loading) {
+                verifyBtn.disabled = true;
+                btnText.style.display = 'none';
+                loader.style.display = 'inline-block';
+            } else {
+                verifyBtn.disabled = false;
+                btnText.style.display = 'inline';
+                loader.style.display = 'none';
+            }
+        }
+
+        // Resend OTP functionality
+        let countdown;
+        
+        function startTimer(duration) {
+            let timeLeft = duration;
+            resendBtn.disabled = true;
+            timerSpan.textContent = `(${timeLeft}s)`;
+
+            countdown = setInterval(() => {
+                timeLeft--;
+                timerSpan.textContent = `(${timeLeft}s)`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timerSpan.textContent = "";
+                    resendBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        resendBtn.addEventListener("click", async () => {
+            try {
+                const res = await fetch("/resend-otp", { method: "POST" });
+                const data = await res.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "OTP Sent!",
+                        text: data.message,
+                        confirmButtonColor: "#8B7355",
+                        timer: 2000
+                    });
+                    
+                    // Clear inputs and focus first
+                    otpInputs.forEach(input => {
+                        input.value = '';
+                        input.classList.remove('error');
+                    });
+                    otpInputs[0].focus();
+                    
+                    startTimer(60); // 60 seconds for resend
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Resend Failed",
+                        text: data.message,
+                        confirmButtonColor: "#8B7355"
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Server Error",
+                    text: "Something went wrong. Please try again.",
+                    confirmButtonColor: "#8B7355"
+                });
+            }
+        });
+
+        // Start initial timer
+        startTimer(30);
+    </script>
+</body>
+</html>

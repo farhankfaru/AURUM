@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURUM - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { 
+            --aurum-gold: #8B7355; 
+            --light-gold: rgba(139, 115, 85, 0.1); 
+            --dark-text: #2c2c2c; 
+            --light-text: #6c757d; 
+            --bg-main: #f8f9fa; 
+            --bg-white: #fff; 
+            --border-color: #e5e5e5; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--dark-text); overflow-x: hidden; }
+
+        /* Header & Layout Styles */
+        .admin-header { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--bg-white); border-bottom: 1px solid var(--border-color); z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .menu-toggle { background: none; border: none; font-size: 1.5rem; color: var(--light-text); cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.3s ease; }
+        .menu-toggle:hover { background: var(--bg-main); color: var(--aurum-gold); }
+        .admin-brand { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--aurum-gold); font-weight: 600; letter-spacing: 0.1em; }
+        .header-right { display: flex; align-items: center; gap: 1.5rem; }
+        .header-title { font-size: 1.1rem; font-weight: 600; color: var(--dark-text); }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease; }
+        .logout-btn:hover { background: #c82333; transform: translateY(-1px); }
+
+        /* Sidebar Styles */
+        .admin-sidebar { position: fixed; left: 0; top: 70px; width: 280px; height: calc(100vh - 70px); background: var(--bg-white); border-right: 1px solid var(--border-color); z-index: 999; transition: transform 0.3s ease; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+        .admin-sidebar.collapsed { transform: translateX(-100%); }
+        .sidebar-menu { padding: 1.5rem 0; }
+        .menu-section { margin-bottom: 2rem; }
+        .section-title { padding: 0 1.5rem 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.5px; }
+        .menu-item { display: flex; align-items: center; padding: 0.8rem 1.5rem; color: #495057; text-decoration: none; transition: all 0.3s ease; border-left: 3px solid transparent; font-size: 0.9rem; font-weight: 500; }
+        .menu-item:hover { background: var(--bg-main); color: var(--aurum-gold); border-left-color: var(--aurum-gold); }
+        .menu-item.active { background: var(--light-gold); color: var(--aurum-gold); border-left-color: var(--aurum-gold); font-weight: 600; }
+        .menu-item i { width: 20px; margin-right: 1rem; font-size: 1rem; text-align: center; }
+
+        /* Main Content Area Styles */
+        .admin-main { margin-left: 280px; margin-top: 70px; padding: 2rem; height: calc(100vh - 70px); transition: margin-left 0.3s ease; overflow-y: auto; }
+        .admin-main.expanded { margin-left: 0; }
+
+        /* --- NEW: Custom Scrollbar for MAIN CONTENT AREA --- */
+        .admin-main::-webkit-scrollbar { width: 8px; }
+        .admin-main::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .admin-main::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #8B7355, #A0956B); border-radius: 10px; }
+        .admin-main::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #6B5B47, #8B7355); }
+        .admin-main { scrollbar-width: thin; scrollbar-color: #8B7355 #f1f1f1; }
+        /* --- END NEW --- */
+
+        .page-content { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsive & Overlay Styles */
+        @media (max-width: 1024px) { .admin-main { margin-left: 0; } .admin-sidebar { transform: translateX(-100%); } .admin-sidebar.show { transform: translateX(0); } }
+        @media (max-width: 768px) { .admin-header { padding: 0 1rem; } .header-title { display: none; } }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 998; display: none; }
+        .sidebar-overlay.show { display: block; }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="header-left">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <div class="admin-brand">AURUM</div>
+        </div>
+        <div class="header-right">
+            <h1 class="header-title" id="pageTitle">Admin Panel</h1>
+            <form action="/admin/logout" method="POST" style="display: inline;"><button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></form>
+        </div>
+    </header>
+    <nav class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <div class="section-title">Main</div>
+                <a href="/admin/dashboard" class="menu-item" data-page="Dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="/admin/customers" class="menu-item" data-page="Customers"><i class="fas fa-users"></i><span>Customers</span></a>
+                <a href="/admin/orders" class="menu-item" data-page="Orders"><i class="fas fa-shopping-cart"></i><span>Orders</span></a>
+            </div>
+            <div class="menu-section">
+                <div class="section-title">Catalog</div>
+                <a href="/admin/categories" class="menu-item" data-page="Categories"><i class="fas fa-tags"></i><span>Categories</span></a>
+                <a href="/admin/products" class="menu-item" data-page="Products"><i class="fas fa-box"></i><span>Products</span></a>
+                <a href="/admin/add-products" class="menu-item" data-page="Add Products"><i class="fas fa-plus-circle"></i><span>Add Products</span></a>
+            </div>
+            <div class="menu-section">
+                <div class="section-title">Marketing</div>
+                <a href="/admin/coupons" class="menu-item" data-page="Coupons"><i class="fas fa-ticket-alt"></i><span>Coupons</span></a>
+                <a href="/admin/banners" class="menu-item" data-page="Banners"><i class="fas fa-image"></i><span>Banners</span></a>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="admin-main" id="adminMain">

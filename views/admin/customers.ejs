@@ -1,0 +1,86 @@
+<%- include('../partials/admin/header') %>
+
+<style>
+    :root { 
+        --aurum-gold: #bfa75d; 
+        --text-dark: #333; 
+        --border-light: #e0e0e0; 
+        --inactive-red: #d9534f; 
+        --active-green: #5cb85c; 
+        --white-bg: #fff; 
+        --light-grey-bg: #f9f9f9;
+        --reset-btn-bg: #6c757d;
+    }
+    .customer-management-content { padding: 2rem; background-color: var(--white-bg); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .content-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; }
+    .content-header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--text-dark); margin: 0; }
+    
+    /* --- UPDATED SEARCH FORM STYLES --- */
+    .search-form { display: flex; }
+    .search-form input[type="text"] { min-width: 280px; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px 0 0 4px; font-size: 1rem; }
+    .search-form button, .search-form a.reset-btn { padding: 0.75rem 1.25rem; border: none; color: white; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-flex; align-items: center; }
+    .search-form button { background-color: #343a40; border-radius: 0; }
+    .search-form a.reset-btn { background-color: var(--reset-btn-bg); border-radius: 0 4px 4px 0; }
+    .search-form a.reset-btn:hover { background-color: #5a6268; }
+    
+    .table-responsive-wrapper { overflow-x: auto; }
+    .customer-data-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+    .customer-data-table th, .customer-data-table td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid var(--border-light); white-space: nowrap; vertical-align: middle; }
+    .customer-data-table th { background-color: var(--light-grey-bg); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .status-badge { padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: white; display: inline-block; }
+    .status-active { background-color: var(--active-green); }
+    .status-inactive { background-color: var(--inactive-red); }
+    .action-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
+    .btn-block { background-color: var(--inactive-red); }
+    .btn-unblock { background-color: var(--active-green); }
+    .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .pagination-controls a, .pagination-controls span { padding: 0.5rem 1rem; border: 1px solid var(--border-light); border-radius: 4px; text-decoration: none; color: var(--text-dark); background-color: #fff; font-size: 0.9rem; }
+    .pagination-controls .disabled { color: #adb5bd; pointer-events: none; background-color: var(--light-grey-bg); }
+    @media (max-width: 768px) { .content-header { flex-direction: column; align-items: flex-start; } .search-form { width: 100%; } .search-form input[type="text"] { width: 100%; } }
+</style>
+
+<div class="page-content">
+    <div class="customer-management-content">
+        <div class="content-header">
+            <h1>Customers</h1>
+            <!-- --- UPDATED SEARCH FORM HTML --- -->
+            <form class="search-form" action="/admin/customers" method="GET">
+                <input type="text" name="search" placeholder="Search by name or email..." value="<%= search %>">
+                <button type="submit">Search</button>
+                <a href="/admin/customers" class="reset-btn">Reset</a>
+            </form>
+        </div>
+        <div class="table-responsive-wrapper">
+            <table class="customer-data-table">
+                <thead><tr><th>Customer ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <% if(customers.length > 0) { customers.forEach(customer => { %>
+                        <tr>
+                            <td><%= customer._id %></td>
+                            <td><%= customer.name %></td>
+                            <td><%= customer.email %></td>
+                            <td><%= customer.phone || 'N/A' %></td>
+                            <td><span class="status-badge <%= customer.isBlocked ? 'status-inactive' : 'status-active' %>"><%= customer.isBlocked ? 'Inactive' : 'Active' %></span></td>
+                            <td>
+                                <form action="/admin/customers/<%= customer.isBlocked ? 'unblock' : 'block' %>/<%= customer.id %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="action-btn <%= customer.isBlocked ? 'btn-unblock' : 'btn-block' %>"><%= customer.isBlocked ? 'Unblock' : 'Block' %></button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) } else { %>
+                        <tr><td colspan="6" style="text-align: center; padding: 3rem; font-size: 1.1rem; color: #6c757d;">No customers found.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        <% if (totalPages > 1) { %>
+            <div class="pagination-controls">
+                <% if (currentPage > 1) { %><a href="/admin/customers?page=<%= currentPage - 1 %>&search=<%= search %>">Previous</a><% } else { %><span class="disabled">Previous</span><% } %>
+                <span style="background: var(--aurum-gold); color: white; border-color: var(--aurum-gold);">Page <%= currentPage %> of <%= totalPages %></span>
+                <% if (currentPage < totalPages) { %><a href="/admin/customers?page=<%= currentPage + 1 %>&search=<%= search %>">Next</a><% } else { %><span class="disabled">Next</span><% } %>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/admin/footer') %>

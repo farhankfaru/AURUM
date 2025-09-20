@@ -15,13 +15,15 @@ const  {Schema}= mongoose
     phone:{
         type:String,
         required:false,
-        unique:false,
+        unique:true,
         sparse:true,
         default:null,
     },
     googleId:{
         type:String,
         unique:true,
+        sparse:true,
+        required:false
 
     },
     password:{
@@ -36,21 +38,16 @@ const  {Schema}= mongoose
         type:Boolean,
         default:false
     },
-    createdAt:{
-        type:Date,
-        default:Date.now
-    },
-    updatedAt:{
-        type:Date,
-        default:Date.now
-
-    },
+   
+    
     referalcode:{
-        type:string
+        type:String
     }
- })
+ },{timestamps:true})
+
+  
 
 
-const User = mongoose.model("User".UserSchema)
+const User = mongoose.model("User", userSchema)
 
 module.exports= User

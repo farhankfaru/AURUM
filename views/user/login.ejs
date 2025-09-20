@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - AURUM</title>
+    <!-- Google Fonts and Font Awesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            background: #fff;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        /* Image Section - Old Money Style */
+        .image-section {
+            flex: 1;
+            background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
+            background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(139,115,85,0.9) 0%, rgba(160,149,107,0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .brand-info h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            animation: slideInUp 1s ease-out;
+            letter-spacing: 0.2em;
+            color: #F5F5DC;
+        }
+        .brand-info p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            max-width: 450px;
+            opacity: 0.95;
+            animation: slideInUp 1s ease-out 0.2s both;
+            line-height: 1.8;
+            color: #F5F5DC;
+        }
+
+        /* Form Section */
+        .form-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #ffffff;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 450px;
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .form-header h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #8B7355;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+        .form-header p {
+            color: #6B5B47;
+            font-size: 1rem;
+            font-style: italic;
+        }
+
+        /* Server Error Message */
+        .server-error {
+            background: #fed7d7;
+            border: 1px solid #e53e3e;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: slideInUp 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .input-container {
+            position: relative;
+        }
+        .input-container input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #D4C4A8;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #FEFCF7;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .input-container input:focus {
+            border-color: #8B7355;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(139,115,85,0.10);
+            transform: translateY(-2px);
+        }
+        .input-container input.error {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B7355;
+            transition: color 0.3s ease;
+        }
+        .input-container input:focus + .input-icon {
+            color: #6B5B47;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B7355;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .toggle-password:hover { color: #6B5B47; }
+
+        .error-message {
+            display: block;
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            margin-left: 0.5rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+        .forgot-password a {
+            color: #8B7355;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .forgot-password a:hover {
+            color: #6B5B47;
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139,115,85,0.3);
+        }
+        .login-btn:active { transform: translateY(0);}
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 1px;
+            background: #D4C4A8;
+        }
+        .divider span {
+            background: #fff;
+            padding: 0 1rem;
+            color: #8B7355;
+            font-size: 0.9rem;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #D4C4A8;
+            background: white;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            color: #8B7355;
+            text-decoration: none;
+        }
+        .google-btn:hover {
+            border-color: #8B7355;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139,115,85,0.15);
+        }
+        .google-icon { width: 20px; height: 20px; }
+
+        .signup-link { text-align: center;}
+        .signup-link p { color: #6B5B47; font-size: 0.95rem;}
+        .signup-link a {
+            color: #8B7355;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .signup-link a:hover { color: #6B5B47; text-decoration: underline; }
+
+        /* Loading state */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px);}
+            to { opacity: 1; transform: translateX(0);}
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { flex-direction: column;}
+            .image-section { min-height: 30vh; flex: none;}
+            .brand-info h1 { font-size: 2.5rem;}
+            .brand-info p { font-size: 1.1rem;}
+            .form-section { padding: 1.5rem;}
+            .form-header h2 { font-size: 1.8rem;}
+        }
+        @media (max-width: 480px) {
+            .form-section { padding: 1rem;}
+            .input-container input { padding: 0.875rem 0.875rem 0.875rem 2.5rem;}
+            .input-icon {left: 0.875rem;}
+            .toggle-password { right: 0.875rem;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Side - Image Section -->
+        <div class="image-section">
+            <div class="overlay">
+                <div class="brand-info">
+                    <h1>AURUM</h1>
+                    <p>Welcome back to the timeless world of sophisticated fashion. Your luxury awaits.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Form Section -->
+        <div class="form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to continue your journey with AURUM's exclusive collection</p>
+                </div>
+
+                <!-- Server Error Message -->
+                <% if (typeof message !== 'undefined' && message) { %>
+                    <div class="server-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <%= message %>
+                    </div>
+                <% } %>
+
+                <form id="loginForm" class="login-form" action="/login" method="POST">
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="email" id="email" name="email" placeholder="Email Address" required>
+                            <i class="fas fa-envelope input-icon"></i>
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="password" id="password" name="password" placeholder="Password" required>
+                            <i class="fas fa-lock input-icon"></i>
+                            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                            <span class="error-message" id="passwordError"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="forgot-password">
+                        <a href="#" id="forgotPasswordBtn">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <span id="btnText">Sign In</span>
+                        <span id="btnLoader" class="loading" style="display: none;"></span>
+                    </button>
+                </form>
+
+                <div class="divider"><span>or</span></div>
+
+                <a href="/auth/google" class="google-btn" id="googleLogin">
+                    <i class="fab fa-google google-icon"></i>
+                    <span>Continue with Google</span>
+                </a>
+
+                <div class="signup-link">
+                    <p>New to AURUM? <a href="/signup" id="signupBtn">Create Account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const inputs = {
+                email: document.getElementById('email'),
+                password: document.getElementById('password')
+            };
+            const errorElements = {
+                email: document.getElementById('emailError'),
+                password: document.getElementById('passwordError')
+            };
+            const togglePassword = document.getElementById('togglePassword');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+
+            // Password visibility toggle
+            function togglePasswordVisibility(inputId, toggleIcon) {
+                const input = document.getElementById(inputId);
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    toggleIcon.classList.remove('fa-eye');
+                    toggleIcon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    toggleIcon.classList.remove('fa-eye-slash');
+                    toggleIcon.classList.add('fa-eye');
+                }
+            }
+            
+            togglePassword.addEventListener('click', function() {
+                togglePasswordVisibility('password', this);
+            });
+
+            // Input validation and error clearing
+            Object.keys(inputs).forEach(key => {
+                inputs[key].addEventListener('blur', () => validateField(key));
+                inputs[key].addEventListener('input', () => clearError(key));
+                
+                // Clear server error when user starts typing
+                inputs[key].addEventListener('input', function() {
+                    const serverError = document.querySelector('.server-error');
+                    if (serverError) {
+                        serverError.style.display = 'none';
+                    }
+                });
+            });   
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                // Only prevent default if client-side validation fails
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Show loading state
+                setLoadingState(true);
+                
+                // Let the form submit naturally to your Express.js controller
+            });
+
+            function setLoadingState(loading) {
+                if (loading) {
+                    loginBtn.disabled = true;
+                    btnText.style.display = 'none';
+                    btnLoader.style.display = 'inline-block';
+                } else {
+                    loginBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnLoader.style.display = 'none';
+                }
+            }
+
+            function validateForm() {
+                let isFormValid = true;
+                Object.keys(inputs).forEach(key => {
+                    if (!validateField(key)) {
+                        isFormValid = false;
+                    }
+                });
+                return isFormValid;
+            }
+
+            function validateField(fieldName) {
+                const value = inputs[fieldName].value.trim();
+                let isValid = true;
+                let errorMessage = '';
+                
+                switch (fieldName) {
+                    case 'email':
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!value) {
+                            errorMessage = 'Email is required';
+                            isValid = false;
+                        } else if (!emailRegex.test(value)) {
+                            errorMessage = 'Please enter a valid email address';
+                            isValid = false;
+                        }
+                        break;
+                        
+                    case 'password':
+                        if (!value) {
+                            errorMessage = 'Password is required';
+                            isValid = false;
+                        }
+                        break;
+                }
+                
+                showError(fieldName, errorMessage, !isValid);
+                return isValid;
+            }
+
+            function showError(fieldName, message, show) {
+                const errorElement = errorElements[fieldName];
+                const inputElement = inputs[fieldName];
+                if (show) {
+                    errorElement.textContent = message;
+                    errorElement.classList.add('show');
+                    inputElement.classList.add('error');
+                } else {
+                    errorElement.classList.remove('show');
+                    inputElement.classList.remove('error');
+                }
+            }
+            
+            function clearError(fieldName) {
+                showError(fieldName, '', false);
+            }
+
+            // Reset button state when page is shown
+            window.addEventListener('pageshow', function() {
+                setLoadingState(false);
+            });
+
+            // Forgot password functionality
+            document.getElementById('forgotPasswordBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Password reset feature coming soon!');
+            });
+
+            // Auto-focus first input if no server error
+            if (!document.querySelector('.server-error')) {
+                inputs.email.focus();
+            }
+
+            // Enhanced UX: Enter key handling
+            Object.keys(inputs).forEach(key => {
+                inputs[key].addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        if (key === 'email') {
+                            inputs.password.focus();
+                        } else if (key === 'password') {
+                            form.dispatchEvent(new Event('submit'));
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
