@@ -1,11 +1,19 @@
+<!-- This file is located at: views/partials/admin/header.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AURUM - Admin</title>
+
+    <!-- Google Fonts and Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- This script includes the SweetAlert2 library for professional pop-up alerts. -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         :root { 
             --aurum-gold: #8B7355; 
@@ -46,13 +54,12 @@
         .admin-main { margin-left: 280px; margin-top: 70px; padding: 2rem; height: calc(100vh - 70px); transition: margin-left 0.3s ease; overflow-y: auto; }
         .admin-main.expanded { margin-left: 0; }
 
-        /* --- NEW: Custom Scrollbar for MAIN CONTENT AREA --- */
+        /* Custom Scrollbar for Main Content Area */
         .admin-main::-webkit-scrollbar { width: 8px; }
         .admin-main::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         .admin-main::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #8B7355, #A0956B); border-radius: 10px; }
         .admin-main::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #6B5B47, #8B7355); }
         .admin-main { scrollbar-width: thin; scrollbar-color: #8B7355 #f1f1f1; }
-        /* --- END NEW --- */
 
         .page-content { animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

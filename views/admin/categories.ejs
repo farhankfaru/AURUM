@@ -1,0 +1,1089 @@
+<%- include('../partials/admin/header') %>
+
+<style>
+    :root { 
+        --aurum-gold: #bfa75d; 
+        --aurum-gold-darker: #a18f4d;
+        --text-dark: #333; 
+        --text-light: #6c757d;
+        --border-color: #e0e0e0; 
+        --status-listed: #5cb85c; 
+        --status-unlisted: #d9534f; 
+        --bg-white: #fff; 
+        --bg-light-grey: #f9f9f9;
+        --bg-dark-grey: #343a40;
+        --bg-reset: #6c757d;
+        --bg-edit: #f0ad4e;
+        --bg-delete: #d9534f;
+    }
+    
+    .page-content { 
+        animation: fadeIn 0.4s ease-in-out;
+        padding: 1rem;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .category-management-container {
+        padding: 2rem;
+        background-color: var(--bg-white);
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+        margin: 0 auto;
+        max-width: 1400px;
+    }
+    
+    .main-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+    }
+    .main-header h1 { 
+        font-family: 'Playfair Display', serif; 
+        font-size: 2rem; 
+        color: var(--aurum-gold);
+        margin: 0;
+    }
+
+    .add-category-form { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr auto; 
+        gap: 1.5rem; 
+        align-items: flex-end; 
+        margin-bottom: 2rem; 
+    }
+    .form-group { position: relative; }
+    .form-group label { 
+        display: block; 
+        font-weight: 600; 
+        font-size: 0.8rem; 
+        color: var(--text-light); 
+        margin-bottom: 0.5rem; 
+        text-transform: uppercase; 
+    }
+    .form-group input, .form-group select { 
+        width: 100%; 
+        padding: 0.8rem; 
+        border: 1px solid var(--border-color); 
+        border-radius: 4px; 
+        font-size: 0.9rem;
+        transition: border-color 0.2s ease;
+    }
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--aurum-gold);
+        box-shadow: 0 0 0 2px rgba(191, 167, 93, 0.2);
+    }
+    .form-group .add-btn { 
+        width: 100%; 
+        padding: 0.8rem; 
+        background-color: var(--aurum-gold); 
+        color: white; 
+        border: none; 
+        border-radius: 4px; 
+        font-size: 0.9rem; 
+        font-weight: 600; 
+        cursor: pointer; 
+        transition: all 0.2s ease; 
+    }
+    .form-group .add-btn:hover { 
+        background-color: var(--aurum-gold-darker);
+        transform: translateY(-1px);
+    }
+
+    .table-controls { 
+        display: flex; 
+        justify-content: flex-end; 
+        margin-bottom: 1rem; 
+    }
+    .search-form { 
+        display: flex;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .search-form input { 
+        padding: 0.7rem; 
+        border: 1px solid var(--border-color); 
+        border-right: none;
+        border-radius: 0;
+        font-size: 0.9rem;
+        min-width: 250px;
+    }
+    .search-form button, .search-form a.reset-btn { 
+        padding: 0.7rem 1rem; 
+        border: none; 
+        color: white; 
+        cursor: pointer; 
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .search-form button { 
+        background-color: var(--bg-dark-grey);
+        border-right: 1px solid var(--border-color);
+    }
+    .search-form button:hover {
+        background-color: #495057;
+    }
+    .search-form a.reset-btn { 
+        background-color: var(--bg-reset);
+    }
+    .search-form a.reset-btn:hover {
+        background-color: #5a6268;
+    }
+
+    .table-responsive-wrapper {
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--aurum-gold) #f1f1f1;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .table-responsive-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-responsive-wrapper::-webkit-scrollbar-track { background: #f1f1f1; }
+    .table-responsive-wrapper::-webkit-scrollbar-thumb { 
+        background-color: var(--aurum-gold); 
+        border-radius: 6px; 
+    }
+
+    .category-data-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        background: white;
+    }
+    .category-data-table th, .category-data-table td { 
+        padding: 1rem; 
+        text-align: left; 
+        border-bottom: 1px solid var(--border-color); 
+        white-space: nowrap; 
+    }
+    .category-data-table th { 
+        background-color: var(--bg-light-grey); 
+        font-weight: 600; 
+        text-transform: uppercase; 
+        font-size: 0.75rem;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .category-data-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .action-btn { 
+        padding: 0.4rem 0.8rem; 
+        border-radius: 4px; 
+        color: white; 
+        text-decoration: none; 
+        font-size: 0.8rem; 
+        font-weight: 500; 
+        border: none; 
+        cursor: pointer;
+        margin-right: 3px; 
+        margin-bottom: 3px; 
+        transition: all 0.2s ease;
+        display: inline-block;
+    }
+    .offer-btn { background-color: #3a86ff; }
+    .edit-offer-btn { background-color: #17a2b8; }
+    .list-btn { background-color: var(--status-listed); }
+    .unlist-btn { background-color: var(--status-unlisted); }
+    .edit-btn { background-color: var(--bg-edit); }
+    .delete-btn { background-color: var(--bg-delete); }
+    .action-btn:hover { 
+        transform: translateY(-1px); 
+        opacity: 0.9;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .discount-display {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .discount-value {
+        color: var(--aurum-gold);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .discount-type-badge {
+        background-color: var(--aurum-gold);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        font-weight: 500;
+    }
+
+    /* FIXED MODAL STYLES - FULLY RESPONSIVE */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(2px);
+        overflow-y: auto; /* Allow scrolling */
+        overflow-x: hidden;
+        padding: 1rem; /* Add padding for mobile */
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 2rem auto; /* Reduced margin for better mobile fit */
+        padding: 1.5rem;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 500px;
+        max-height: 90vh; /* Prevent modal from being too tall */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+        position: relative;
+        overflow-y: auto; /* Allow content scrolling if needed */
+    }
+    
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+    }
+    .modal-header h3 {
+        color: var(--aurum-gold);
+        font-size: 1.2rem;
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+    }
+    .close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #999;
+        transition: color 0.2s ease;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        flex-shrink: 0; /* Prevent shrinking */
+    }
+    .close:hover { 
+        color: #333;
+        background-color: #f1f1f1;
+    }
+    
+    .modal-form {
+        overflow-y: auto;
+        max-height: calc(90vh - 150px); /* Adjust for header and buttons */
+    }
+    
+    .modal-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .modal-form label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .modal-form input, .modal-form select {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+    .modal-form input:focus, .modal-form select:focus {
+        outline: none;
+        border-color: var(--aurum-gold);
+        box-shadow: 0 0 0 2px rgba(191, 167, 93, 0.2);
+    }
+    .modal-form input[readonly] {
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+
+    .discount-input-container {
+        position: relative;
+    }
+    .currency-symbol {
+        position: absolute;
+        left: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        font-weight: 600;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    .percentage-symbol {
+        position: absolute;
+        right: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        font-weight: 600;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    .discount-input-with-symbol {
+        padding-left: 2rem;
+    }
+    .discount-input-with-percent {
+        padding-right: 2rem;
+    }
+
+    /* FIXED MODAL BUTTONS - RESPONSIVE */
+    .modal-buttons {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        position: sticky;
+        bottom: 0;
+        background: white;
+        flex-wrap: wrap;
+    }
+    
+    .modal-btn {
+        padding: 0.8rem 1.2rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        min-width: 120px;
+    }
+    .modal-btn.primary {
+        background-color: var(--aurum-gold);
+        color: white;
+    }
+    .modal-btn.primary:hover {
+        background-color: var(--aurum-gold-darker);
+        transform: translateY(-1px);
+    }
+    .modal-btn.secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    .modal-btn.secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-1px);
+    }
+    .modal-btn.danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    .modal-btn.danger:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+    }
+
+    .current-discount {
+        background-color: #f8f9fa;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .current-discount-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--aurum-gold);
+        margin-bottom: 0.5rem;
+    }
+    .current-discount-type {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .pagination-controls { 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        gap: 0.5rem; 
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    .pagination-controls a, .pagination-controls span { 
+        padding: 0.5rem 1rem; 
+        border: 1px solid var(--border-color); 
+        border-radius: 4px; 
+        text-decoration: none; 
+        color: var(--text-dark);
+        transition: all 0.2s ease;
+    }
+    .pagination-controls a:hover {
+        background-color: var(--aurum-gold);
+        color: white;
+        border-color: var(--aurum-gold);
+    }
+    .pagination-controls .disabled { 
+        color: #ccc; 
+        pointer-events: none; 
+    }
+
+    /* RESPONSIVE DESIGN - MOBILE OPTIMIZED */
+    @media (max-width: 1200px) {
+        .category-management-container { padding: 1.5rem; }
+    }
+
+    @media (max-width: 992px) { 
+        .add-category-form { 
+            grid-template-columns: 1fr; 
+            gap: 1rem;
+        }
+        .table-controls {
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .search-form input {
+            min-width: 200px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-content { padding: 0.5rem; }
+        .category-management-container { 
+            padding: 1rem; 
+            margin: 0;
+            border-radius: 0;
+        }
+        .main-header h1 { font-size: 1.6rem; }
+        
+        /* MOBILE MODAL STYLES */
+        .modal {
+            padding: 0.5rem;
+        }
+        .modal-content { 
+            margin: 1rem auto;
+            padding: 1rem;
+            width: 98%;
+            max-height: 95vh;
+            border-radius: 8px;
+        }
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+        .modal-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .modal-btn {
+            width: 100%;
+            min-width: unset;
+        }
+        .current-discount {
+            padding: 0.8rem;
+        }
+        .current-discount-value {
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .search-form {
+            flex-direction: column;
+            width: 100%;
+        }
+        .search-form input {
+            min-width: unset;
+            border-radius: 4px 4px 0 0;
+        }
+        .search-form button {
+            border-radius: 0;
+        }
+        .search-form a.reset-btn {
+            border-radius: 0 0 4px 4px;
+        }
+        .category-data-table {
+            font-size: 0.8rem;
+        }
+        .action-btn {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+        }
+        
+        /* EXTRA SMALL MOBILE MODAL */
+        .modal {
+            padding: 0.25rem;
+        }
+        .modal-content {
+            margin: 0.5rem auto;
+            padding: 0.8rem;
+            width: 99%;
+        }
+        .modal-form input, .modal-form select {
+            padding: 0.7rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* PREVENT BODY SCROLL WHEN MODAL IS OPEN */
+    body.modal-open {
+        overflow: hidden;
+    }
+</style>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="page-content">
+    <div class="category-management-container">
+
+        <div class="main-header">
+            <h1>Category Management</h1>
+        </div>
+
+        <form action="/admin/categories" method="POST" class="add-category-form">
+            <div class="form-group">
+                <label for="categoryname">CATEGORY NAME</label>
+                <input type="text" id="categoryname" name="categoryname" required placeholder="Enter category name">
+            </div>
+            <div class="form-group">
+                <label for="description">DESCRIPTION</label>
+                <input type="text" id="description" name="description" required placeholder="Enter description">
+            </div>
+            <div class="form-group">
+                <label>&nbsp;</label> 
+                <button type="submit" class="add-btn">
+                    <i class="fas fa-plus"></i> ADD CATEGORY
+                </button>
+            </div>
+        </form>
+
+        <div class="table-controls">
+            <form class="search-form" action="/admin/categories" method="GET">
+                <input type="text" name="search" placeholder="Search by category name..." value="<%= search %>">
+                <button type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="/admin/categories" class="reset-btn">
+                    <i class="fas fa-times"></i> Reset
+                </a>
+            </form>
+        </div>
+
+        <div class="table-responsive-wrapper">
+            <table class="category-data-table">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Discount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(categories && categories.length > 0) { %>
+                        <% categories.forEach(category => { %>
+                            <tr>
+                                <td><%= category.categoryname %></td>
+                                <td><%= category.description %></td>
+                                <td>
+                                    <% if(category.categoryoffer > 0) { %>
+                                        <div class="discount-display">
+                                            <span class="discount-value">
+                                                <% if(category.discountType === 'percentage') { %>
+                                                    <%= category.categoryoffer %>%
+                                                <% } else { %>
+                                                    ₹<%= category.categoryoffer %>
+                                                <% } %>
+                                            </span>
+                                            <span class="discount-type-badge">
+                                                <%= category.discountType === 'percentage' ? 'PCT' : 'FIXED' %>
+                                            </span>
+                                        </div>
+                                    <% } else { %>
+                                        <span style="color: var(--text-light);">No Discount</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if(category.islisted) { %>
+                                        <button type="button" class="action-btn unlist-btn" 
+                                                data-category-id="<%= category._id %>" 
+                                                data-category-name="<%= category.categoryname %>" 
+                                                onclick="confirmToggleStatusSafe(this, false)">
+                                            <i class="fas fa-eye-slash"></i> Unlist
+                                        </button>
+                                    <% } else { %>
+                                        <button type="button" class="action-btn list-btn" 
+                                                data-category-id="<%= category._id %>" 
+                                                data-category-name="<%= category.categoryname %>" 
+                                                onclick="confirmToggleStatusSafe(this, true)">
+                                            <i class="fas fa-eye"></i> List
+                                        </button>
+                                    <% } %>
+                                </td>
+                                <td class="action-buttons">
+                                    <!-- Single Discount Management Button -->
+                                    <% if(category.categoryoffer > 0) { %>
+                                        <button type="button" class="action-btn edit-offer-btn" 
+                                                data-category-id="<%= category._id %>" 
+                                                data-category-name="<%= category.categoryname %>" 
+                                                data-category-offer="<%= category.categoryoffer %>" 
+                                                data-discount-type="<%= category.discountType || 'percentage' %>" 
+                                                onclick="openOfferModalSafe(this)" 
+                                                title="Manage Discount">
+                                            <i class="fas fa-tag"></i> Edit Offer
+                                        </button>
+                                    <% } else { %>
+                                        <button type="button" class="action-btn offer-btn" 
+                                                data-category-id="<%= category._id %>" 
+                                                data-category-name="<%= category.categoryname %>" 
+                                                data-category-offer="0" 
+                                                data-discount-type="percentage" 
+                                                onclick="openOfferModalSafe(this)">
+                                            <i class="fas fa-tag"></i> Add Discount
+                                        </button>
+                                    <% } %>
+                                    
+                                    <!-- Edit and Delete Buttons -->
+                                    <button class="action-btn edit-btn" onclick="openEditModal('<%= category._id %>')">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="action-btn delete-btn" 
+                                            data-category-id="<%= category._id %>" 
+                                            data-category-name="<%= category.categoryname %>" 
+                                            onclick="deleteCategorySafe(this)">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                                <i class="fas fa-folder-open" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                                No categories found.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination controls -->
+        <% if (totalPages > 1) { %>
+            <div class="pagination-controls">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/categories?page=<%= currentPage - 1 %>&search=<%= search %>">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                <% } else { %>
+                    <span class="disabled">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </span>
+                <% } %>
+                <span>Page <%= currentPage %> of <%= totalPages %></span>
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/categories?page=<%= currentPage + 1 %>&search=<%= search %>">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                <% } else { %>
+                    <span class="disabled">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </span>
+                <% } %>
+            </div>
+        <% } %>
+
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Category</h3>
+            <button type="button" class="close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <form id="editForm" method="POST" class="modal-form">
+            <div class="form-group">
+                <label for="editCategoryname">Category Name</label>
+                <input type="text" id="editCategoryname" name="categoryname" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Description</label>
+                <input type="text" id="editDescription" name="description" required>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn secondary" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="modal-btn primary">
+                    <i class="fas fa-save"></i> Update Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- FIXED: Responsive Discount Management Modal -->
+<div id="offerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="offerModalTitle"><i class="fas fa-tag"></i> Manage Discount</h3>
+            <button type="button" class="close" onclick="closeOfferModal()">&times;</button>
+        </div>
+        <form id="offerForm" method="POST" class="modal-form">
+            <div class="form-group">
+                <label for="categoryNameDisplay">Category</label>
+                <input type="text" id="categoryNameDisplay" readonly>
+            </div>
+
+            <!-- Show Current Discount -->
+            <div id="currentDiscountSection" class="current-discount" style="display: none;">
+                <div class="current-discount-value" id="currentDiscountValue"></div>
+                <div class="current-discount-type" id="currentDiscountTypeText"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="discountType">Discount Type</label>
+                <select id="discountType" name="discountType" onchange="toggleDiscountInput()">
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount (₹)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="discountValue" id="discountValueLabel">Discount Value</label>
+                <div class="discount-input-container">
+                    <span class="currency-symbol" id="currencySymbol" style="display: none;">₹</span>
+                    <input type="number" id="discountValue" name="discountValue" min="1" required 
+                           class="discount-input-with-percent" step="0.01">
+                    <span class="percentage-symbol" id="percentSymbol">%</span>
+                </div>
+                <small id="discountHint" style="color: var(--text-light); font-size: 0.8rem; display: block; margin-top: 0.5rem;">
+                    Enter percentage between 1% - 90%
+                </small>
+            </div>
+
+            <!-- FIXED: Properly positioned buttons -->
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn secondary" onclick="closeOfferModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="modal-btn danger" id="removeOfferBtn" onclick="confirmRemoveOffer()" style="display: none;">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+                <button type="submit" class="modal-btn primary" id="offerSubmitBtn">
+                    <i class="fas fa-tag"></i> Add Discount
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Global variables for current offer management
+let currentCategoryId = null;
+let currentCategoryName = null;
+let currentOfferValue = 0;
+
+// FIXED: Modal management with body scroll prevention
+function openModal(modalId) {
+    document.body.classList.add('modal-open');
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.body.classList.remove('modal-open');
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Edit Modal Functions
+function openEditModal(categoryId) {
+    fetch(`/admin/categories/get/${categoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('editCategoryname').value = data.category.categoryname;
+                document.getElementById('editDescription').value = data.category.description;
+                document.getElementById('editForm').action = `/admin/categories/edit/${categoryId}`;
+                openModal('editModal');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load category data',
+                    confirmButtonColor: '#8B7355'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Network error occurred',
+                confirmButtonColor: '#8B7355'
+            });
+        });
+}
+
+function closeEditModal() {
+    closeModal('editModal');
+}
+
+// SAFE: Discount Modal Functions using data attributes
+function openOfferModalSafe(button) {
+    const categoryId = button.dataset.categoryId;
+    const categoryName = button.dataset.categoryName;
+    const categoryOffer = parseInt(button.dataset.categoryOffer) || 0;
+    const discountType = button.dataset.discountType || 'percentage';
+    
+    openOfferModal(categoryId, categoryName, categoryOffer, discountType);
+}
+
+// Enhanced Discount Modal Functions
+function openOfferModal(categoryId, categoryName, currentDiscount, discountType) {
+    // Store current values globally
+    currentCategoryId = categoryId;
+    currentCategoryName = categoryName;
+    currentOfferValue = currentDiscount;
+    
+    // Set form values
+    document.getElementById('categoryNameDisplay').value = categoryName;
+    document.getElementById('discountValue').value = currentDiscount || '';
+    document.getElementById('discountType').value = discountType || 'percentage';
+    
+    // Show/Hide current discount section
+    const currentDiscountSection = document.getElementById('currentDiscountSection');
+    const removeOfferBtn = document.getElementById('removeOfferBtn');
+    
+    if (currentDiscount > 0) {
+        // Edit mode - show current discount and remove button
+        currentDiscountSection.style.display = 'block';
+        removeOfferBtn.style.display = 'inline-block';
+        
+        // Display current discount
+        const discountText = discountType === 'percentage' ? 
+            `${currentDiscount}%` : `₹${currentDiscount}`;
+        const typeText = discountType === 'percentage' ? 
+            'Percentage Discount' : 'Fixed Amount Discount';
+            
+        document.getElementById('currentDiscountValue').textContent = 
+            `Current Discount: ${discountText}`;
+        document.getElementById('currentDiscountTypeText').textContent = typeText;
+        
+        // Set modal title and button text
+        document.getElementById('offerModalTitle').innerHTML = '<i class="fas fa-edit"></i> Manage Discount';
+        document.getElementById('offerSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update';
+        document.getElementById('offerForm').action = `/admin/categories/edit-offer/${categoryId}`;
+    } else {
+        // Add mode - hide current discount and remove button
+        currentDiscountSection.style.display = 'none';
+        removeOfferBtn.style.display = 'none';
+        
+        // Set modal title and button text
+        document.getElementById('offerModalTitle').innerHTML = '<i class="fas fa-tag"></i> Add Discount';
+        document.getElementById('offerSubmitBtn').innerHTML = '<i class="fas fa-tag"></i> Add Discount';
+        document.getElementById('offerForm').action = `/admin/categories/add-offer/${categoryId}`;
+    }
+    
+    // Set up the input based on discount type
+    toggleDiscountInput();
+    
+    // Show the modal
+    openModal('offerModal');
+}
+
+function closeOfferModal() {
+    closeModal('offerModal');
+}
+
+function toggleDiscountInput() {
+    const discountType = document.getElementById('discountType').value;
+    const currencySymbol = document.getElementById('currencySymbol');
+    const percentSymbol = document.getElementById('percentSymbol');
+    const discountInput = document.getElementById('discountValue');
+    const discountHint = document.getElementById('discountHint');
+    const discountLabel = document.getElementById('discountValueLabel');
+    
+    if (discountType === 'fixed') {
+        // Fixed amount mode
+        currencySymbol.style.display = 'block';
+        percentSymbol.style.display = 'none';
+        discountInput.className = 'discount-input-with-symbol';
+        discountInput.max = '50000';
+        discountInput.min = '1';
+        discountInput.step = '1';
+        discountInput.placeholder = 'Enter amount in rupees';
+        discountLabel.textContent = 'Fixed Discount Amount';
+        discountHint.textContent = 'Enter fixed discount amount between ₹1 - ₹50,000';
+    } else {
+        // Percentage mode
+        currencySymbol.style.display = 'none';
+        percentSymbol.style.display = 'block';
+        discountInput.className = 'discount-input-with-percent';
+        discountInput.max = '90';
+        discountInput.min = '1';
+        discountInput.step = '1';
+        discountInput.placeholder = 'Enter percentage';
+        discountLabel.textContent = 'Percentage Discount';
+        discountHint.textContent = 'Enter percentage between 1% - 90%';
+    }
+}
+
+// Remove Discount Function
+function confirmRemoveOffer() {
+    Swal.fire({
+        title: 'Remove Discount?',
+        text: `Are you sure you want to remove the discount from "${currentCategoryName}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-trash"></i> Yes, Remove!',
+        cancelButtonText: '<i class="fas fa-ban"></i> Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Create and submit remove offer form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/categories/remove-offer/${currentCategoryId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+// SAFE: Delete Category Function using data attributes
+function deleteCategorySafe(button) {
+    const categoryId = button.dataset.categoryId;
+    const categoryName = button.dataset.categoryName;
+    deleteCategory(categoryId, categoryName);
+}
+
+// Delete Category Function
+function deleteCategory(categoryId, categoryName) {
+    Swal.fire({
+        title: 'Delete Category?',
+        text: `Are you sure you want to delete "${categoryName}"? This will hide it from both admin panel and user homepage.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '<i class="fas fa-trash"></i> Yes, Delete!',
+        cancelButtonText: '<i class="fas fa-times"></i> Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/categories/delete/${categoryId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+// SAFE: List/Unlist Confirmation using data attributes
+function confirmToggleStatusSafe(button, newStatus) {
+    const categoryId = button.dataset.categoryId;
+    const categoryName = button.dataset.categoryName;
+    confirmToggleStatus(categoryId, newStatus, categoryName);
+}
+
+// List/Unlist Confirmation
+function confirmToggleStatus(categoryId, newStatus, categoryName) {
+    const action = newStatus ? 'list' : 'unlist';
+    const message = newStatus ? 
+        `"${categoryName}" will be visible on the homepage.` : 
+        `"${categoryName}" will be hidden from the homepage but remain in admin panel.`;
+    const icon = newStatus ? 'fa-eye' : 'fa-eye-slash';
+    
+    Swal.fire({
+        title: `${action.charAt(0).toUpperCase() + action.slice(1)} Category?`,
+        text: message,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: newStatus ? '#28a745' : '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: `<i class="fas ${icon}"></i> Yes, ${action.charAt(0).toUpperCase() + action.slice(1)}!`,
+        cancelButtonText: '<i class="fas fa-times"></i> Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/categories/toggle/${categoryId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+// FIXED: Close modals when clicking outside
+window.onclick = function(event) {
+    const editModal = document.getElementById('editModal');
+    const offerModal = document.getElementById('offerModal');
+    
+    if (event.target == editModal) {
+        closeEditModal();
+    }
+    if (event.target == offerModal) {
+        closeOfferModal();
+    }
+}
+
+// Prevent modal close on content click
+document.addEventListener('DOMContentLoaded', function() {
+    const modals = document.querySelectorAll('.modal-content');
+    modals.forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+});
+</script>
+
+<!-- Success Message Alert -->
+<% if (success_msg && success_msg.length > 0) { %>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '<%= success_msg[0] %>',
+            confirmButtonColor: '#8B7355'
+        });
+    </script>
+<% } %>
+
+<!-- Error Message Alert -->
+<% if (error_msg && error_msg.length > 0) { %>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Action Failed',
+            text: '<%= error_msg[0] %>',
+            confirmButtonColor: '#8B7355'
+        });
+    </script>
+<% } %>
+
+<%- include('../partials/admin/footer') %>

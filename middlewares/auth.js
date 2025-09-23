@@ -1,54 +1,45 @@
-const User =require("../models/userSchema")
+const User = require("../models/userSchema");
 
+const userAuth = (req, res, next) => {
+    if (req.session.user) {
+        const timeout = setTimeout(() => {
+            console.log("User auth database timeout");
+            req.session.destroy();
+            res.redirect('/login');
+        }, 3000);
 
-
- const userAuth= (req,res,next)=>{
-    if(req.session.User){
-        User.findById(req.session.User)
-        .then(data=>{
-            if (data && !data.isBlocked){
-                next()
-            }else{
-                res.redirect('/login')
-            }
-
-
-        })
-        .catch(error=>{
-            console.log("errror in user auth middlwear")
-            res.status(500).send("internal server errror")
-        })
-    } 
-    else{
-        res.redirect('/login')
+        User.findById(req.session.user)
+            .then(data => {
+                clearTimeout(timeout);
+                if (data && !data.isBlocked) {
+                    next();
+                } else {
+                    req.session.destroy();
+                    res.redirect('/login');
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeout);
+                console.log("Error in user auth middleware:", error);
+                req.session.destroy();
+                res.redirect('/login');
+            });
+    } else {
+        res.redirect('/login');
     }
- }
+};
 
 const adminAuth = (req, res, next) => {
-    User.findOne({isAdmin:true})
-    .then(data=>{
-        if (data) {
+    if (req.session.admin) {
         console.log("Admin authenticated:", req.session.admin);
         next();
     } else {
         console.log("Admin not authenticated, redirecting to login");
         res.redirect('/admin/login');
     }
-
-    })
-    .catch(error=>{
-        console.log('error in adminauth middleware',error)
-        res.status(500).send('internal server error')
-
-    })
-    
 };
 
-
-
-
- module.exports={
+module.exports = {
     userAuth,
-    adminAuth,
-    
- }
+    adminAuth
+};

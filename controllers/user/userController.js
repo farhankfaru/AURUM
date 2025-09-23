@@ -24,16 +24,14 @@ function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-
 async function sendVarificationEmail(email, otp) {
     try {
-        console.log(" Attempting to send email to:", email);
-        console.log(" Email config:", {
+        console.log("Attempting to send email to:", email);
+        console.log("Email config:", {
             user: process.env.NODEMAILER_EMAIL,
             pass: process.env.NODEMAILER_PASSWORD ? "***SET***" : "***NOT SET***"
         });
 
-       
         if (!process.env.NODEMAILER_EMAIL || !process.env.NODEMAILER_PASSWORD) {
             console.error("Email credentials not set in .env file");
             return false;
@@ -50,9 +48,8 @@ async function sendVarificationEmail(email, otp) {
             }
         });
 
-       
         await transporter.verify();
-        console.log(" Email transporter verified");
+        console.log("Email transporter verified");
         
         const info = await transporter.sendMail({
             from: process.env.NODEMAILER_EMAIL,
@@ -75,23 +72,21 @@ async function sendVarificationEmail(email, otp) {
             `,
         });
         
-        console.log(" Email sent successfully:", info.messageId);
+        console.log("Email sent successfully:", info.messageId);
         return info.accepted.length > 0;
         
     } catch (error) {
-        console.error(" Email sending error:", error.message);
+        console.error("Email sending error:", error.message);
         console.error("Full error:", error);
         return false;
     }
 }
 
-
 const signup = async (req, res) => {
     try {
-        console.log(" Signup attempt with data:", req.body);
+        console.log("Signup attempt with data:", req.body);
 
         const { name, email, phone, password, confirmPassword } = req.body;
-        
         
         if (!name || !email || !phone || !password || !confirmPassword) {
             return res.render("signup", { message: "All fields are required" });
@@ -106,26 +101,24 @@ const signup = async (req, res) => {
             return res.render("signup", { message: "User with this email already exists" });
         }
         
-       
         const otp = generateOtp();
-        console.log(" Generated OTP:", otp);
+        console.log("Generated OTP:", otp);
         
         const emailSent = await sendVarificationEmail(email, otp);
 
         if (!emailSent) {
-            console.log(" Email sending failed");
+            console.log("Email sending failed");
             return res.render("signup", { message: "Failed to send verification email. Please check your email address and try again." });
         }
-        
         
         req.session.userOtp = otp;
         req.session.userData = { name, email: email.toLowerCase(), phone, password };
         
-        console.log(" OTP sent successfully, redirecting to verify-otp");
+        console.log("OTP sent successfully, redirecting to verify-otp");
         res.render("verify-otp", { email: email });
 
     } catch (error) {
-        console.error(" Signup error:", error);
+        console.error("Signup error:", error);
         res.render("signup", { message: "An error occurred during signup. Please try again." });
     }
 };
@@ -139,7 +132,6 @@ const securepassword = async (password) => {
         throw error;
     }
 };
-
 
 const verifyOtp = async (req, res) => {
     try {
@@ -170,7 +162,7 @@ const verifyOtp = async (req, res) => {
             const user = req.session.userData;
             const passwordHash = await securepassword(user.password);
             
-            console.log(" Creating user with password hash:", passwordHash ? "YES" : "NO");
+            console.log("Creating user with password hash:", passwordHash ? "YES" : "NO");
             
             const saveUserData = new User({
                 name: user.name,
@@ -268,73 +260,205 @@ const loadHomepage = async (req, res) => {
     }
 };
 
-
-
 const login = async (req, res) => {
+    console.log("=== LOGIN ATTEMPT START ===");
+    console.log("Request body:", req.body);
+
     try {
-        console.log("=== LOGIN ATTEMPT START ===");
-        console.log("Request body:", req.body);
-        
         const { email, password } = req.body;
         
         if (!email || !password) {
-            console.log(" Missing email or password");
+            console.log("Missing email or password");
             return res.render("login", { message: "Please provide both email and password" });
         }
         
-        console.log(" Searching for user with email:", email);
+        console.log("Looking for user with email:", email);
         
-        const findUser = await User.findOne({ email: email.toLowerCase().trim(), isAdmin: 0 });
+        let findUser;
+        try {
+            findUser = await Promise.race([
+                User.findOne({ 
+                    email: email.toLowerCase().trim(), 
+                    isAdmin: false
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('User query timeout')), 3000)
+                )
+            ]);
+        } catch (error) {
+            console.log("Database query failed:", error.message);
+            return res.render("login", { 
+                message: "Database temporarily unavailable. Please try again." 
+            });
+        }
         
         if (!findUser) {
-            console.log(" User not found in database");
+            console.log("User not found");
             return res.render("login", { message: "Invalid email or password" });
         }
         
-        console.log(" User found:", findUser.email);
-        console.log("   - isAdmin:", findUser.isAdmin);
-        console.log("   - isBlocked:", findUser.isBlocked);
-        console.log("   - Password exists:", findUser.password ? "YES" : "NO");
+        console.log("SUCCESS: User found:", findUser.email);
+        console.log("=== USER STATUS DEBUG ===");
+        console.log("findUser.isBlocked:", findUser.isBlocked);
+        console.log("Type of isBlocked:", typeof findUser.isBlocked);
+        console.log("findUser.isAdmin:", findUser.isAdmin);
+        console.log("findUser.googleId:", findUser.googleId);
+        console.log("Has password:", !!findUser.password);
+        console.log("================================");
         
-      
-        if (!findUser.password) {
-            console.log(" User has no password hash in database");
-            return res.render("login", { message: "Account setup incomplete. Please contact support." });
-        }
-        
-       
+        // Check if user is blocked
         if (findUser.isBlocked === true) {
-            console.log(" User is blocked");
-            return res.render("login", { message: "Your account has been blocked by admin" });
+            console.log("ERROR: User is blocked - sending immediate response");
+            return res.render("login", { 
+                message: "Your account has been blocked by admin. Please contact support." 
+            });
         }
         
-        console.log(" Comparing passwords...");
+        console.log("SUCCESS: User is not blocked, continuing...");
         
-        const passwordMatch = await bcrypt.compare(password, findUser.password);
-        console.log(" Password match result:", passwordMatch);
+        // Check for Google users without password
+        if (findUser.googleId && !findUser.password) {
+            console.log("ERROR: Google user trying password login");
+            return res.render("login", { 
+                message: "This account was created with Google. Please use 'Continue with Google' to sign in." 
+            });
+        }
+        
+        // Check if password exists
+        if (!findUser.password) {
+            console.log("ERROR: No password hash found");
+            return res.render("login", { 
+                message: "Account setup incomplete. Please contact support." 
+            });
+        }
+        
+        console.log("SUCCESS: Password hash exists, starting comparison...");
+        console.log("Password hash length:", findUser.password.length);
+        console.log("Provided password length:", password.length);
+        
+        // Compare password with timeout protection
+        let passwordMatch;
+        try {
+            console.log("PROCESS: Starting bcrypt comparison...");
+            
+            passwordMatch = await Promise.race([
+                bcrypt.compare(password, findUser.password),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Password comparison timeout')), 8000)
+                )
+            ]);
+            
+            console.log("SUCCESS: Bcrypt comparison completed. Match:", passwordMatch);
+            
+        } catch (error) {
+            console.log("ERROR: Password comparison failed:", error.message);
+            return res.render("login", { 
+                message: "Login processing timeout. Please try again." 
+            });
+        }
         
         if (!passwordMatch) {
-            console.log(" Password does not match");
-            return res.render('login', { message: "Invalid email or password" });
+            console.log("ERROR: Password mismatch");
+            return res.render("login", { message: "Invalid email or password" });
         }
         
+        console.log("SUCCESS: Password verified successfully, creating session...");
         
-        console.log(" LOGIN SUCCESSFUL!");
-        req.session.user = findUser._id;
-        console.log(" Session set for user ID:", findUser._id);
+        // Create session with timeout protection
+        try {
+            console.log("PROCESS: Starting session creation...");
+            
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    console.log("ERROR: Session creation timeout reached");
+                    reject(new Error('Session creation timeout'));
+                }, 5000);
+                
+                req.session.user = findUser._id;
+                console.log("Session user ID set:", findUser._id);
+                
+                req.session.save((err) => {
+                    clearTimeout(timeout);
+                    if (err) {
+                        console.log("ERROR: Session save error:", err);
+                        reject(err);
+                    } else {
+                        console.log("SUCCESS: Session saved successfully");
+                        resolve();
+                    }
+                });
+            });
+            
+        } catch (error) {
+            console.log("ERROR: Session creation failed:", error.message);
+            return res.render("login", { 
+                message: "Session creation failed. Please try again." 
+            });
+        }
         
+        console.log("SUCCESS: LOGIN SUCCESSFUL - Redirecting to homepage");
         return res.redirect("/");
         
     } catch (error) {
-        console.error(" LOGIN ERROR:", error);
-        return res.render('login', { message: "Login failed, please try again later" });
+        console.error("CRITICAL LOGIN ERROR:", error);
+        
+        if (!res.headersSent) {
+            return res.render('login', { 
+                message: "Login system temporarily unavailable. Please try again." 
+            });
+        }
+    }
+    
+    console.log("=== LOGIN ATTEMPT END ===");
+};
+
+const googleSuccess = async (req, res) => {
+    try {
+        console.log("Google OAuth Success");
+        
+        if (!req.user) {
+            return res.redirect('/login');
+        }
+        
+        try {
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(new Error('Google session creation timeout')), 2000);
+                
+                req.session.user = req.user._id;
+                req.session.save((err) => {
+                    clearTimeout(timeout);
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        } catch (error) {
+            return res.render("login", { 
+                message: "Google login session creation failed. Please try again." 
+            });
+        }
+        
+        res.redirect('/');
+        
+    } catch (error) {
+        console.error("Google OAuth success error:", error);
+        res.render('login', { 
+            message: "Google authentication failed. Please try again." 
+        });
     }
 };
 
+const googleFailure = (req, res) => {
+    res.render('login', { 
+        message: "Google authentication failed. Please try again." 
+    });
+};
 
 const logout = async (req, res) => {
     try {
-        console.log(" Logout attempt for user:", req.session.user);
+        console.log("Logout attempt for user:", req.session.user);
         
         req.session.destroy((err) => {
             if (err) {
@@ -342,22 +466,16 @@ const logout = async (req, res) => {
                 return res.redirect('/');
             }
             
-            console.log(" Session destroyed successfully");
-            
-       
+            console.log("Session destroyed successfully");
             res.clearCookie('connect.sid');
-            
-           
             return res.redirect('/');
         });
         
     } catch (error) {
-        console.error(" Logout error:", error);
+        console.error("Logout error:", error);
         return res.redirect('/');
     }
 };
-
-
 
 module.exports = {
     loadHomepage,
@@ -368,5 +486,7 @@ module.exports = {
     resendOtp,   
     loadLogin,  
     login,
+    googleSuccess,
+    googleFailure,
     logout,
 };

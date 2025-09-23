@@ -188,6 +188,7 @@
             text-align: center;
             font-size: 0.9rem;
             color: #6B5B47;
+            line-height: 1.5;
         }
 
         .resend-btn {
@@ -197,22 +198,39 @@
             font-weight: 600;
             cursor: pointer;
             text-decoration: underline;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
         }
 
-        .resend-btn:hover {
+        .resend-btn:hover:not(:disabled) {
             color: #6B5B47;
+            background: rgba(139, 115, 85, 0.1);
         }
 
         .resend-btn:disabled {
             color: #999;
             cursor: not-allowed;
             text-decoration: none;
+            background: none;
         }
 
         .timer {
             color: #8B7355;
             font-weight: 500;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #28a745;
+            animation: slideInDown 0.5s ease-out;
         }
 
         .loading {
@@ -225,9 +243,25 @@
             animation: spin 1s linear infinite;
         }
 
+        .resend-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #8B7355;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Animations */
@@ -310,7 +344,8 @@
                 <div class="resend-section">
                     Didn't receive the code? 
                     <button id="resendBtn" type="button" class="resend-btn">Resend OTP</button>
-                    <span id="timer" class="timer"></span>
+                    <div id="timer" class="timer"></div>
+                    <div id="successMessage" style="display: none;"></div>
                 </div>
             </div>
         </div>
@@ -326,7 +361,14 @@
         const btnText = document.getElementById("btnText");
         const loader = document.getElementById("loader");
         const resendBtn = document.getElementById("resendBtn");
-        const timerSpan = document.getElementById("timer");
+        const timerDiv = document.getElementById("timer");
+        const successMessage = document.getElementById("successMessage");
+
+        // UPDATED TIMER VARIABLES
+        let initialTimer = 30; // 60 seconds initial time
+        let resendCooldown = 30; // 30 seconds resend cooldown
+        let countdown;
+        let currentTime = initialTimer;
 
         // Auto-focus first input
         otpInputs[0].focus();
@@ -464,39 +506,62 @@
             }
         }
 
-        // Resend OTP functionality
-        let countdown;
-        
-        function startTimer(duration) {
-            let timeLeft = duration;
+        // TIMER FUNCTIONS WITH UPDATED TIMING
+        function startTimer(duration, isResend = false) {
+            clearInterval(countdown);
+            currentTime = duration;
             resendBtn.disabled = true;
-            timerSpan.textContent = `(${timeLeft}s)`;
+            
+            updateTimerDisplay(isResend);
 
             countdown = setInterval(() => {
-                timeLeft--;
-                timerSpan.textContent = `(${timeLeft}s)`;
+                currentTime--;
+                updateTimerDisplay(isResend);
 
-                if (timeLeft <= 0) {
+                if (currentTime <= 0) {
                     clearInterval(countdown);
-                    timerSpan.textContent = "";
+                    timerDiv.innerHTML = "";
                     resendBtn.disabled = false;
+                    resendBtn.innerHTML = "Resend OTP";
                 }
             }, 1000);
         }
 
+        function updateTimerDisplay(isResend) {
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = currentTime % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (isResend) {
+                timerDiv.innerHTML = `Resend available in ${timeString}`;
+                resendBtn.innerHTML = `Resend OTP (${timeString})`;
+            } else {
+                timerDiv.innerHTML = `Time remaining: ${timeString}`;
+            }
+        }
+
+        function showSuccessMessage(message) {
+            successMessage.innerHTML = `<div class="success-message">${message}</div>`;
+            successMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 4000);
+        }
+
+        // RESEND FUNCTION
         resendBtn.addEventListener("click", async () => {
+            // Show immediate loading feedback
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<span class="resend-spinner"></span>Sending...';
+            
             try {
                 const res = await fetch("/resend-otp", { method: "POST" });
                 const data = await res.json();
 
                 if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "OTP Sent!",
-                        text: data.message,
-                        confirmButtonColor: "#8B7355",
-                        timer: 2000
-                    });
+                    // Show success message
+                    showSuccessMessage("New OTP sent successfully!");
                     
                     // Clear inputs and focus first
                     otpInputs.forEach(input => {
@@ -505,8 +570,12 @@
                     });
                     otpInputs[0].focus();
                     
-                    startTimer(60); // 60 seconds for resend
+                    // Start resend cooldown timer (30 seconds)
+                    startTimer(resendCooldown, true);
+                    
                 } else {
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = "Resend OTP";
                     Swal.fire({
                         icon: "error",
                         title: "Resend Failed",
@@ -515,6 +584,8 @@
                     });
                 }
             } catch (err) {
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = "Resend OTP";
                 Swal.fire({
                     icon: "error",
                     title: "Server Error",
@@ -524,8 +595,10 @@
             }
         });
 
-        // Start initial timer
-        startTimer(30);
+        // Start initial timer when page loads (60 seconds)
+        document.addEventListener('DOMContentLoaded', function() {
+            startTimer(initialTimer, false);
+        });
     </script>
 </body>
 </html>

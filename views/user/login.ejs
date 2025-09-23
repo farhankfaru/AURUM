@@ -7,7 +7,10 @@
     <!-- Google Fonts and Font Awesome for icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- ALL YOUR EXISTING CSS STAYS EXACTLY THE SAME -->
     <style>
+        /* ... ALL YOUR EXISTING CSS ... */
         * {
             margin: 0;
             padding: 0;
@@ -325,6 +328,7 @@
     </style>
 </head>
 <body>
+    <!-- ALL YOUR EXISTING HTML STAYS THE SAME -->
     <div class="container">
         <!-- Left Side - Image Section -->
         <div class="image-section">
@@ -393,6 +397,7 @@
         </div>
     </div>
 
+    <!-- ===== ENHANCED BULLETPROOF JAVASCRIPT ===== -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('loginForm');
@@ -408,6 +413,9 @@
             const loginBtn = document.getElementById('loginBtn');
             const btnText = document.getElementById('btnText');
             const btnLoader = document.getElementById('btnLoader');
+            
+            let formSubmissionTimeout;
+            let isSubmitting = false;
 
             // Password visibility toggle
             function togglePasswordVisibility(inputId, toggleIcon) {
@@ -441,9 +449,15 @@
                 });
             });   
 
-            // Form submission handling
+            // ENHANCED form submission with timeout handling
             form.addEventListener('submit', function(e) {
-                // Only prevent default if client-side validation fails
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Client-side validation
                 if (!validateForm()) {
                     e.preventDefault();
                     return;
@@ -451,6 +465,17 @@
 
                 // Show loading state
                 setLoadingState(true);
+                isSubmitting = true;
+                
+                // Set timeout for form submission (15 seconds)
+                formSubmissionTimeout = setTimeout(() => {
+                    // Reset form state
+                    setLoadingState(false);
+                    isSubmitting = false;
+                    
+                    // Show timeout error
+                    showServerError('Request timeout. Please check your connection and try again.');
+                }, 15000); // 15 second timeout
                 
                 // Let the form submit naturally to your Express.js controller
             });
@@ -460,11 +485,32 @@
                     loginBtn.disabled = true;
                     btnText.style.display = 'none';
                     btnLoader.style.display = 'inline-block';
+                    loginBtn.style.opacity = '0.8';
                 } else {
                     loginBtn.disabled = false;
                     btnText.style.display = 'inline';
                     btnLoader.style.display = 'none';
+                    loginBtn.style.opacity = '1';
                 }
+            }
+
+            function showServerError(message) {
+                // Remove existing server error
+                const existingError = document.querySelector('.server-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Create new error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'server-error';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                
+                // Insert before form
+                form.parentNode.insertBefore(errorDiv, form);
+                
+                // Auto-scroll to error
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             function validateForm() {
@@ -498,6 +544,9 @@
                         if (!value) {
                             errorMessage = 'Password is required';
                             isValid = false;
+                        } else if (value.length < 6) {
+                            errorMessage = 'Password must be at least 6 characters';
+                            isValid = false;
                         }
                         break;
                 }
@@ -523,9 +572,29 @@
                 showError(fieldName, '', false);
             }
 
-            // Reset button state when page is shown
+            // Reset button state when page is shown (back button handling)
             window.addEventListener('pageshow', function() {
+                if (formSubmissionTimeout) {
+                    clearTimeout(formSubmissionTimeout);
+                }
                 setLoadingState(false);
+                isSubmitting = false;
+            });
+
+            // Reset state when page becomes visible again
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && isSubmitting) {
+                    // Page became visible and form is still submitting - reset state
+                    setTimeout(() => {
+                        if (isSubmitting) {
+                            setLoadingState(false);
+                            isSubmitting = false;
+                            if (formSubmissionTimeout) {
+                                clearTimeout(formSubmissionTimeout);
+                            }
+                        }
+                    }, 1000);
+                }
             });
 
             // Forgot password functionality
@@ -546,10 +615,26 @@
                         if (key === 'email') {
                             inputs.password.focus();
                         } else if (key === 'password') {
-                            form.dispatchEvent(new Event('submit'));
+                            if (!isSubmitting) {
+                                form.dispatchEvent(new Event('submit'));
+                            }
                         }
                     }
                 });
+            });
+
+            // Prevent multiple rapid clicks
+            loginBtn.addEventListener('click', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+
+            // Google OAuth button handling
+            document.getElementById('googleLogin').addEventListener('click', function(e) {
+                console.log('🔍 Google OAuth button clicked');
+                // Let the link work naturally - no preventDefault needed
             });
         });
     </script>

@@ -11,11 +11,12 @@
         --light-grey-bg: #f9f9f9;
         --reset-btn-bg: #6c757d;
     }
+    
+    /* Base Desktop Styles */
     .customer-management-content { padding: 2rem; background-color: var(--white-bg); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .content-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; }
     .content-header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--text-dark); margin: 0; }
     
-    /* --- UPDATED SEARCH FORM STYLES --- */
     .search-form { display: flex; }
     .search-form input[type="text"] { min-width: 280px; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px 0 0 4px; font-size: 1rem; }
     .search-form button, .search-form a.reset-btn { padding: 0.75rem 1.25rem; border: none; color: white; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-flex; align-items: center; }
@@ -36,14 +37,57 @@
     .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
     .pagination-controls a, .pagination-controls span { padding: 0.5rem 1rem; border: 1px solid var(--border-light); border-radius: 4px; text-decoration: none; color: var(--text-dark); background-color: #fff; font-size: 0.9rem; }
     .pagination-controls .disabled { color: #adb5bd; pointer-events: none; background-color: var(--light-grey-bg); }
-    @media (max-width: 768px) { .content-header { flex-direction: column; align-items: flex-start; } .search-form { width: 100%; } .search-form input[type="text"] { width: 100%; } }
+
+    /* Tablet Styles (1024px and below) */
+    @media (max-width: 1024px) {
+        .customer-management-content { padding: 1.5rem; }
+        .content-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .search-form { width: 100%; max-width: 500px; }
+        .customer-data-table th, .customer-data-table td { padding: 0.75rem 0.5rem; font-size: 0.85rem; }
+    }
+
+    /* Mobile Styles (768px and below) */
+    @media (max-width: 768px) {
+        .customer-management-content { padding: 1rem; margin: 0.5rem; }
+        .content-header h1 { font-size: 1.8rem; }
+        .search-form { flex-direction: column; width: 100%; }
+        .search-form input[type="text"] { width: 100%; min-width: auto; border-radius: 4px; margin-bottom: 0.5rem; }
+        .search-form button, .search-form a.reset-btn { width: 48%; border-radius: 4px; justify-content: center; }
+        .search-form button { margin-right: 2%; }
+        
+        .table-responsive-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .customer-data-table { min-width: 600px; }
+        .customer-data-table th, .customer-data-table td { padding: 0.5rem 0.25rem; font-size: 0.8rem; }
+        .action-btn { padding: 0.3rem 0.6rem; font-size: 0.7rem; }
+        
+        .pagination-controls { flex-direction: column; gap: 0.5rem; }
+        .pagination-controls a, .pagination-controls span { width: 100%; text-align: center; }
+    }
+
+    /* Small Mobile Styles (480px and below) */
+    @media (max-width: 480px) {
+        .customer-management-content { padding: 0.75rem; margin: 0.25rem; border-radius: 8px; }
+        .content-header h1 { font-size: 1.5rem; }
+        .search-form button, .search-form a.reset-btn { width: 100%; margin: 0.25rem 0; }
+        .customer-data-table th, .customer-data-table td { padding: 0.4rem 0.2rem; font-size: 0.75rem; }
+        .status-badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; }
+        .action-btn { padding: 0.25rem 0.5rem; font-size: 0.65rem; }
+    }
+
+    /* Extra Small Mobile (360px and below) */
+    @media (max-width: 360px) {
+        .customer-management-content { padding: 0.5rem; margin: 0.125rem; }
+        .content-header h1 { font-size: 1.3rem; }
+        .customer-data-table th, .customer-data-table td { padding: 0.3rem 0.15rem; font-size: 0.7rem; }
+        .status-badge { font-size: 0.6rem; padding: 0.15rem 0.4rem; }
+        .action-btn { padding: 0.2rem 0.4rem; font-size: 0.6rem; }
+    }
 </style>
 
 <div class="page-content">
     <div class="customer-management-content">
         <div class="content-header">
             <h1>Customers</h1>
-            <!-- --- UPDATED SEARCH FORM HTML --- -->
             <form class="search-form" action="/admin/customers" method="GET">
                 <input type="text" name="search" placeholder="Search by name or email..." value="<%= search %>">
                 <button type="submit">Search</button>
@@ -55,15 +99,24 @@
                 <thead><tr><th>Customer ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
                 <tbody>
                     <% if(customers.length > 0) { customers.forEach(customer => { %>
+                        <% 
+                        var blockAction = customer.isBlocked ? 'unblock' : 'block';
+                        var blockText = customer.isBlocked ? 'Unblock' : 'Block';
+                        var statusText = customer.isBlocked ? 'Inactive' : 'Active';
+                        var statusClass = customer.isBlocked ? 'status-inactive' : 'status-active';
+                        var buttonClass = customer.isBlocked ? 'btn-unblock' : 'btn-block';
+                        %>
                         <tr>
                             <td><%= customer._id %></td>
                             <td><%= customer.name %></td>
                             <td><%= customer.email %></td>
                             <td><%= customer.phone || 'N/A' %></td>
-                            <td><span class="status-badge <%= customer.isBlocked ? 'status-inactive' : 'status-active' %>"><%= customer.isBlocked ? 'Inactive' : 'Active' %></span></td>
+                            <td><span class="status-badge <%= statusClass %>"><%= statusText %></span></td>
                             <td>
-                                <form action="/admin/customers/<%= customer.isBlocked ? 'unblock' : 'block' %>/<%= customer.id %>" method="POST" style="display: inline;">
-                                    <button type="submit" class="action-btn <%= customer.isBlocked ? 'btn-unblock' : 'btn-block' %>"><%= customer.isBlocked ? 'Unblock' : 'Block' %></button>
+                                <form id="form-<%= customer._id %>" action="/admin/customers/<%= blockAction %>/<%= customer._id %>" method="POST" style="display: inline;">
+                                    <button type="button" onclick="confirmAction('<%= customer._id %>', '<%= blockText %>')" class="action-btn <%= buttonClass %>">
+                                        <%= blockText %>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -82,5 +135,46 @@
         <% } %>
     </div>
 </div>
+
+<script>
+    function confirmAction(customerId, action) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to ${action.toLowerCase()} this user. This action can be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: `Yes, ${action} user!`,
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`form-${customerId}`).submit();
+            }
+        });
+    }
+</script>
+
+<% if (success_msg && success_msg.length > 0) { %>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '<%= success_msg[0] %>',
+            confirmButtonColor: '#8B7355'
+        });
+    </script>
+<% } %>
+
+<% if (error_msg && error_msg.length > 0) { %>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Action Failed',
+            text: '<%= error_msg[0] %>',
+            confirmButtonColor: '#8B7355'
+        });
+    </script>
+<% } %>
 
 <%- include('../partials/admin/footer') %>
