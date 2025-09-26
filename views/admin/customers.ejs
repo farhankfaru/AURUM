@@ -1,180 +1,1037 @@
-<%- include('../partials/admin/header') %>
+<%- include('../partials/admin/header', { 
+    title: 'Customer Management - AURUM Admin',
+    pageTitle: 'Customer Management',
+    currentPage: 'customers'
+}) %>
 
 <style>
-    :root { 
-        --aurum-gold: #bfa75d; 
-        --text-dark: #333; 
-        --border-light: #e0e0e0; 
-        --inactive-red: #d9534f; 
-        --active-green: #5cb85c; 
-        --white-bg: #fff; 
-        --light-grey-bg: #f9f9f9;
-        --reset-btn-bg: #6c757d;
-    }
-    
-    /* Base Desktop Styles */
-    .customer-management-content { padding: 2rem; background-color: var(--white-bg); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .content-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; }
-    .content-header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--text-dark); margin: 0; }
-    
-    .search-form { display: flex; }
-    .search-form input[type="text"] { min-width: 280px; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px 0 0 4px; font-size: 1rem; }
-    .search-form button, .search-form a.reset-btn { padding: 0.75rem 1.25rem; border: none; color: white; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-flex; align-items: center; }
-    .search-form button { background-color: #343a40; border-radius: 0; }
-    .search-form a.reset-btn { background-color: var(--reset-btn-bg); border-radius: 0 4px 4px 0; }
-    .search-form a.reset-btn:hover { background-color: #5a6268; }
-    
-    .table-responsive-wrapper { overflow-x: auto; }
-    .customer-data-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
-    .customer-data-table th, .customer-data-table td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid var(--border-light); white-space: nowrap; vertical-align: middle; }
-    .customer-data-table th { background-color: var(--light-grey-bg); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
-    .status-badge { padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: white; display: inline-block; }
-    .status-active { background-color: var(--active-green); }
-    .status-inactive { background-color: var(--inactive-red); }
-    .action-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
-    .btn-block { background-color: var(--inactive-red); }
-    .btn-unblock { background-color: var(--active-green); }
-    .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
-    .pagination-controls a, .pagination-controls span { padding: 0.5rem 1rem; border: 1px solid var(--border-light); border-radius: 4px; text-decoration: none; color: var(--text-dark); background-color: #fff; font-size: 0.9rem; }
-    .pagination-controls .disabled { color: #adb5bd; pointer-events: none; background-color: var(--light-grey-bg); }
-
-    /* Tablet Styles (1024px and below) */
-    @media (max-width: 1024px) {
-        .customer-management-content { padding: 1.5rem; }
-        .content-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        .search-form { width: 100%; max-width: 500px; }
-        .customer-data-table th, .customer-data-table td { padding: 0.75rem 0.5rem; font-size: 0.85rem; }
+    /* Customer Management Specific Styles */
+    .customers-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    /* Mobile Styles (768px and below) */
+    /* Alert System */
+    .alert-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 10001;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border-left: 5px solid;
+        animation: slideInRight 0.3s ease;
+        position: relative;
+    }
+
+    .alert.show { display: block; }
+    .alert.success { background: #d1fae5; color: #065f46; border-left-color: #10b981; }
+    .alert.error { background: #fee2e2; color: #991b1b; border-left-color: #ef4444; }
+    .alert.warning { background: #fef3c7; color: #92400e; border-left-color: #f59e0b; }
+
+    .alert-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+    }
+
+    .alert-close:hover { opacity: 1; }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(100%); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideOutRight {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(100%); }
+    }
+
+    /* Header Section */
+    .customers-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .customers-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        min-width: 120px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--aurum-gold);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    /* Search and Filter Section */
+    .search-filter-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .search-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--aurum-gold);
+        box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--light-text);
+    }
+
+    .filter-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: white;
+        min-width: 120px;
+    }
+
+    .reset-btn {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .reset-btn:hover {
+        background: #4b5563;
+    }
+
+    /* Table Container with Scroll */
+    .customers-table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 600px;
+    }
+
+    /* Custom Scrollbar for Table */
+    .table-scroll::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #8B7355, #A0956B);
+        border-radius: 10px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #6B5B47, #8B7355);
+    }
+
+    .customers-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+    .customers-table th {
+        background: var(--aurum-gold);
+        color: white;
+        padding: 1.2rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9rem;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .customers-table td {
+        padding: 1.2rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+
+    .customers-table tr:hover {
+        background: #fafafa;
+    }
+
+    .customer-avatar {
+        width: 45px;
+        height: 45px;
+        background: var(--light-gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--aurum-gold);
+        margin-right: 1rem;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .customer-name {
+        font-weight: 500;
+        color: var(--dark-text);
+        margin-bottom: 0.25rem;
+    }
+
+    .google-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-blocked {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .action-btn {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-block {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-block:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+    .btn-unblock {
+        background: #16a34a;
+        color: white;
+    }
+
+    .btn-unblock:hover {
+        background: #15803d;
+        transform: translateY(-1px);
+    }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 1rem;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .page-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--dark-text);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+        background: var(--bg-main);
+    }
+
+    .page-btn.active {
+        background: var(--aurum-gold);
+        color: white;
+        border-color: var(--aurum-gold);
+    }
+
+    .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes modalSlide {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal h3 {
+        margin-bottom: 1rem;
+        color: var(--dark-text);
+        font-size: 1.3rem;
+    }
+
+    .modal p {
+        margin-bottom: 1.5rem;
+        color: var(--light-text);
+        line-height: 1.5;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .modal-btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .modal-btn.primary {
+        background: var(--aurum-gold);
+        color: white;
+    }
+
+    .modal-btn.primary:hover {
+        background: #6B5B47;
+    }
+
+    .modal-btn.secondary {
+        background: #f8f9fa;
+        color: var(--dark-text);
+    }
+
+    .modal-btn.secondary:hover {
+        background: #e9ecef;
+    }
+
+    .modal-btn.danger {
+        background: #dc2626;
+        color: white;
+    }
+
+    .modal-btn.danger:hover {
+        background: #b91c1c;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--aurum-gold);
+        margin-bottom: 1rem;
+    }
+
+    /* Loading */
+    .loading {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--aurum-gold);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
-        .customer-management-content { padding: 1rem; margin: 0.5rem; }
-        .content-header h1 { font-size: 1.8rem; }
-        .search-form { flex-direction: column; width: 100%; }
-        .search-form input[type="text"] { width: 100%; min-width: auto; border-radius: 4px; margin-bottom: 0.5rem; }
-        .search-form button, .search-form a.reset-btn { width: 48%; border-radius: 4px; justify-content: center; }
-        .search-form button { margin-right: 2%; }
-        
-        .table-responsive-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .customer-data-table { min-width: 600px; }
-        .customer-data-table th, .customer-data-table td { padding: 0.5rem 0.25rem; font-size: 0.8rem; }
-        .action-btn { padding: 0.3rem 0.6rem; font-size: 0.7rem; }
-        
-        .pagination-controls { flex-direction: column; gap: 0.5rem; }
-        .pagination-controls a, .pagination-controls span { width: 100%; text-align: center; }
-    }
+        .customers-container {
+            padding: 1rem;
+        }
 
-    /* Small Mobile Styles (480px and below) */
-    @media (max-width: 480px) {
-        .customer-management-content { padding: 0.75rem; margin: 0.25rem; border-radius: 8px; }
-        .content-header h1 { font-size: 1.5rem; }
-        .search-form button, .search-form a.reset-btn { width: 100%; margin: 0.25rem 0; }
-        .customer-data-table th, .customer-data-table td { padding: 0.4rem 0.2rem; font-size: 0.75rem; }
-        .status-badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; }
-        .action-btn { padding: 0.25rem 0.5rem; font-size: 0.65rem; }
-    }
+        .customers-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-    /* Extra Small Mobile (360px and below) */
-    @media (max-width: 360px) {
-        .customer-management-content { padding: 0.5rem; margin: 0.125rem; }
-        .content-header h1 { font-size: 1.3rem; }
-        .customer-data-table th, .customer-data-table td { padding: 0.3rem 0.15rem; font-size: 0.7rem; }
-        .status-badge { font-size: 0.6rem; padding: 0.15rem 0.4rem; }
-        .action-btn { padding: 0.2rem 0.4rem; font-size: 0.6rem; }
+        .customers-stats {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: auto;
+        }
+
+        .search-controls {
+            flex-direction: column;
+        }
+
+        .search-box {
+            min-width: 100%;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            gap: 1rem;
+        }
     }
 </style>
 
-<div class="page-content">
-    <div class="customer-management-content">
-        <div class="content-header">
-            <h1>Customers</h1>
-            <form class="search-form" action="/admin/customers" method="GET">
-                <input type="text" name="search" placeholder="Search by name or email..." value="<%= search %>">
-                <button type="submit">Search</button>
-                <a href="/admin/customers" class="reset-btn">Reset</a>
-            </form>
+<!-- Alert Container -->
+<div class="alert-container" id="alertContainer"></div>
+
+<div class="customers-container">
+    <!-- Customers Header -->
+    <div class="customers-header">
+        <h1>Customer Management</h1>
+        <div class="customers-stats" id="customerStats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCustomers">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeCustomers">0</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="blockedCustomers">0</div>
+                <div class="stat-label">Blocked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="googleUsers">0</div>
+                <div class="stat-label">Google Users</div>
+            </div>
         </div>
-        <div class="table-responsive-wrapper">
-            <table class="customer-data-table">
-                <thead><tr><th>Customer ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                    <% if(customers.length > 0) { customers.forEach(customer => { %>
-                        <% 
-                        var blockAction = customer.isBlocked ? 'unblock' : 'block';
-                        var blockText = customer.isBlocked ? 'Unblock' : 'Block';
-                        var statusText = customer.isBlocked ? 'Inactive' : 'Active';
-                        var statusClass = customer.isBlocked ? 'status-inactive' : 'status-active';
-                        var buttonClass = customer.isBlocked ? 'btn-unblock' : 'btn-block';
-                        %>
-                        <tr>
-                            <td><%= customer._id %></td>
-                            <td><%= customer.name %></td>
-                            <td><%= customer.email %></td>
-                            <td><%= customer.phone || 'N/A' %></td>
-                            <td><span class="status-badge <%= statusClass %>"><%= statusText %></span></td>
-                            <td>
-                                <form id="form-<%= customer._id %>" action="/admin/customers/<%= blockAction %>/<%= customer._id %>" method="POST" style="display: inline;">
-                                    <button type="button" onclick="confirmAction('<%= customer._id %>', '<%= blockText %>')" class="action-btn <%= buttonClass %>">
-                                        <%= blockText %>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) } else { %>
-                        <tr><td colspan="6" style="text-align: center; padding: 3rem; font-size: 1.1rem; color: #6c757d;">No customers found.</td></tr>
-                    <% } %>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+        <div class="search-controls">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search customers by name, email, or phone...">
+            </div>
+            <select id="statusFilter" class="filter-select">
+                <option value="all">All Customers</option>
+                <option value="active">Active Only</option>
+                <option value="blocked">Blocked Only</option>
+            </select>
+            <button id="resetBtn" class="reset-btn">
+                <i class="fas fa-undo-alt"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="customers-table-container">
+        <div class="table-scroll">
+            <table class="customers-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customersTableBody">
+                    <!-- Loading placeholder -->
+                    <tr>
+                        <td colspan="6" class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading customers...</p>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
-        <% if (totalPages > 1) { %>
-            <div class="pagination-controls">
-                <% if (currentPage > 1) { %><a href="/admin/customers?page=<%= currentPage - 1 %>&search=<%= search %>">Previous</a><% } else { %><span class="disabled">Previous</span><% } %>
-                <span style="background: var(--aurum-gold); color: white; border-color: var(--aurum-gold);">Page <%= currentPage %> of <%= totalPages %></span>
-                <% if (currentPage < totalPages) { %><a href="/admin/customers?page=<%= currentPage + 1 %>&search=<%= search %>">Next</a><% } else { %><span class="disabled">Next</span><% } %>
-            </div>
-        <% } %>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-info" id="paginationInfo">
+            Showing 0 to 0 of 0 customers
+        </div>
+        <div class="pagination-controls" id="paginationControls">
+            <!-- Pagination buttons will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <h3 id="modalTitle">Confirm Action</h3>
+        <p id="modalMessage">Are you sure you want to perform this action?</p>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" id="modalCancel">Cancel</button>
+            <button class="modal-btn primary" id="modalConfirm">Confirm</button>
+        </div>
     </div>
 </div>
 
 <script>
-    function confirmAction(customerId, action) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `You are about to ${action.toLowerCase()} this user. This action can be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: `Yes, ${action} user!`,
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(`form-${customerId}`).submit();
+document.addEventListener('DOMContentLoaded', function() {
+    let allCustomers = []; // Store all customers from server
+    let currentCustomers = []; // Currently displayed customers
+    let filteredCustomers = []; // Filtered customers
+    let currentPage = 1;
+    let customersPerPage = 7; // Show 3 customers per page
+    let totalPages = 1;
+
+    // Initialize
+    loadAllCustomers();
+
+    // Event Listeners
+    document.getElementById('searchInput').addEventListener('input', debounce(handleSearch, 300));
+    document.getElementById('statusFilter').addEventListener('change', handleFilter);
+    document.getElementById('resetBtn').addEventListener('click', resetFilters);
+
+    // Load ALL customers function - without pagination limit
+    async function loadAllCustomers() {
+        try {
+            showLoading(true);
+            
+            // Get ALL customers without limit
+            const response = await fetch('/admin/api/customers?limit=100'); // Get up to 100 customers
+            
+            if (!response.ok) {
+                throw new Error('Failed to load customers');
             }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                allCustomers = data.data.customers || [];
+                filteredCustomers = [...allCustomers];
+                const stats = data.data.stats || {};
+                
+                console.log('=== LOADED CUSTOMERS ===');
+                console.log('Total customers loaded:', allCustomers.length);
+                console.log('customersPerPage:', customersPerPage);
+                
+                updateStats(stats);
+                renderCustomersTable();
+                renderPagination();
+            } else {
+                throw new Error(data.message || 'Failed to load customers');
+            }
+        } catch (error) {
+            console.error('Error loading customers:', error);
+            showAlert('Failed to load customers. Please refresh the page.', 'error');
+            showEmptyState('Error loading customers');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Search functionality
+    function handleSearch() {
+        applyFilters();
+    }
+
+    // Filter functionality
+    function handleFilter() {
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        filteredCustomers = allCustomers.filter(customer => {
+            const matchesSearch = searchTerm === '' || 
+                (customer.name && customer.name.toLowerCase().includes(searchTerm)) ||
+                (customer.email && customer.email.toLowerCase().includes(searchTerm)) ||
+                (customer.phone && customer.phone.toLowerCase().includes(searchTerm));
+            
+            const matchesStatus = statusFilter === 'all' ||
+                (statusFilter === 'active' && !customer.isBlocked) ||
+                (statusFilter === 'blocked' && customer.isBlocked);
+            
+            return matchesSearch && matchesStatus;
+        });
+        
+        currentPage = 1;
+        renderCustomersTable();
+        renderPagination();
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        filteredCustomers = [...allCustomers];
+        currentPage = 1;
+        renderCustomersTable();
+        renderPagination();
+    }
+
+    // Update statistics
+    function updateStats(stats) {
+        document.getElementById('totalCustomers').textContent = stats.total || 0;
+        document.getElementById('activeCustomers').textContent = stats.active || 0;
+        document.getElementById('blockedCustomers').textContent = stats.blocked || 0;
+        document.getElementById('googleUsers').textContent = stats.googleUsers || 0;
+    }
+
+    // Render customers table
+    function renderCustomersTable() {
+        const tbody = document.getElementById('customersTableBody');
+        
+        console.log('=== RENDER CUSTOMERS TABLE ===');
+        console.log('filteredCustomers.length:', filteredCustomers.length);
+        console.log('currentPage:', currentPage);
+        console.log('customersPerPage:', customersPerPage);
+        
+        if (filteredCustomers.length === 0) {
+            showEmptyState();
+            return;
+        }
+
+        // Calculate pagination
+        const startIndex = (currentPage - 1) * customersPerPage;
+        const endIndex = startIndex + customersPerPage;
+        const customersToShow = filteredCustomers.slice(startIndex, endIndex);
+
+        console.log('startIndex:', startIndex, 'endIndex:', endIndex, 'customersToShow.length:', customersToShow.length);
+
+        tbody.innerHTML = customersToShow.map(customer => {
+            const joinedDate = customer.createdAt ? 
+                new Date(customer.createdAt).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }) : 'N/A';
+
+            return `
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">
+                                ${(customer.name || 'U').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div class="customer-name">${customer.name || 'Unknown User'}</div>
+                                ${customer.googleId ? 
+                                    '<div class="google-badge"><i class="fab fa-google" style="color: #db4437;"></i> Google User</div>' : 
+                                    ''
+                                }
+                            </div>
+                        </div>
+                    </td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phone || 'Not provided'}</td>
+                    <td>
+                        <span class="status-badge ${customer.isBlocked ? 'status-blocked' : 'status-active'}">
+                            ${customer.isBlocked ? 'Blocked' : 'Active'}
+                        </span>
+                    </td>
+                    <td>${joinedDate}</td>
+                    <td>
+                        <button class="action-btn ${customer.isBlocked ? 'btn-unblock' : 'btn-block'}" 
+                                onclick="toggleCustomerStatus('${customer._id}', '${customer.name || 'this customer'}', ${customer.isBlocked})">
+                            ${customer.isBlocked ? 'Unblock' : 'Block'}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Render pagination
+    function renderPagination() {
+        totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
+        const paginationContainer = document.getElementById('paginationContainer');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const paginationControls = document.getElementById('paginationControls');
+
+        console.log('=== RENDER PAGINATION ===');
+        console.log('filteredCustomers.length:', filteredCustomers.length);
+        console.log('customersPerPage:', customersPerPage);
+        console.log('totalPages:', totalPages);
+        console.log('currentPage:', currentPage);
+
+        if (filteredCustomers.length === 0) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        // ALWAYS show pagination if there are customers
+        paginationContainer.style.display = 'flex';
+
+        // Update pagination info
+        const startIndex = (currentPage - 1) * customersPerPage + 1;
+        const endIndex = Math.min(currentPage * customersPerPage, filteredCustomers.length);
+        paginationInfo.textContent = `Showing ${startIndex} to ${endIndex} of ${filteredCustomers.length} customers`;
+
+        // Generate pagination controls
+        let paginationHTML = '';
+        
+        // Previous button - ALWAYS SHOW
+        paginationHTML += `
+            <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+        `;
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                paginationHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                paginationHTML += '<span style="padding: 0.5rem;">...</span>';
+            }
+        }
+
+        // Next button - ALWAYS SHOW
+        paginationHTML += `
+            <button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        paginationControls.innerHTML = paginationHTML;
+        console.log('Pagination HTML generated, totalPages:', totalPages);
+    }
+
+    // Change page function
+    window.changePage = function(page) {
+        console.log('changePage called with page:', page);
+        
+        if (page < 1 || page > totalPages) {
+            console.log('Invalid page number:', page);
+            return;
+        }
+        
+        currentPage = page;
+        console.log('currentPage set to:', currentPage);
+        
+        renderCustomersTable();
+        renderPagination();
+    };
+
+    // Toggle customer status
+    window.toggleCustomerStatus = async function(customerId, customerName, isCurrentlyBlocked) {
+        const action = isCurrentlyBlocked ? 'unblock' : 'block';
+        const actionText = isCurrentlyBlocked ? 'unblock' : 'block';
+        
+        const confirmed = await showConfirmModal(
+            `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} Customer`,
+            `Are you sure you want to ${actionText} ${customerName}?`,
+            isCurrentlyBlocked ? 'primary' : 'danger'
+        );
+
+        if (!confirmed) return;
+
+        try {
+            showAlert(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)}ing ${customerName}...`, 'warning', 2000);
+            
+            const response = await fetch(`/admin/api/customers/${customerId}/${action}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reason: `Admin ${action} action`
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert(`✅ ${data.message}`, 'success', 4000);
+                loadAllCustomers(); // Reload customers
+            } else {
+                throw new Error(data.message || `Failed to ${actionText} customer`);
+            }
+        } catch (error) {
+            console.error(`Error ${actionText}ing customer:`, error);
+            showAlert(`❌ Failed to ${actionText} ${customerName}. ${error.message}`, 'error', 6000);
+        }
+    };
+
+    // Show confirmation modal
+    function showConfirmModal(title, message, type = 'primary') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmModal');
+            const titleElement = document.getElementById('modalTitle');
+            const messageElement = document.getElementById('modalMessage');
+            const confirmButton = document.getElementById('modalConfirm');
+            const cancelButton = document.getElementById('modalCancel');
+
+            titleElement.textContent = title;
+            messageElement.textContent = message;
+            
+            confirmButton.className = `modal-btn ${type}`;
+            modal.classList.add('show');
+
+            function cleanup() {
+                modal.classList.remove('show');
+                confirmButton.removeEventListener('click', onConfirm);
+                cancelButton.removeEventListener('click', onCancel);
+                modal.removeEventListener('click', onOverlayClick);
+            }
+
+            function onConfirm() {
+                cleanup();
+                resolve(true);
+            }
+
+            function onCancel() {
+                cleanup();
+                resolve(false);
+            }
+
+            function onOverlayClick(e) {
+                if (e.target === modal) {
+                    cleanup();
+                    resolve(false);
+                }
+            }
+
+            confirmButton.addEventListener('click', onConfirm);
+            cancelButton.addEventListener('click', onCancel);
+            modal.addEventListener('click', onOverlayClick);
         });
     }
+
+    // Show alert
+    function showAlert(message, type = 'success', duration = 5000) {
+        const alertContainer = document.getElementById('alertContainer');
+        
+        const alertId = 'alert_' + Date.now();
+        const alertElement = document.createElement('div');
+        alertElement.id = alertId;
+        alertElement.className = `alert ${type}`;
+        alertElement.innerHTML = `
+            <button class="alert-close" onclick="closeAlert('${alertId}')">&times;</button>
+            <strong>${type.charAt(0).toUpperCase() + type.slice(1)}:</strong> ${message}
+        `;
+        
+        alertContainer.appendChild(alertElement);
+        
+        setTimeout(() => {
+            alertElement.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            closeAlert(alertId);
+        }, duration);
+    }
+
+    window.closeAlert = function(alertId) {
+        const alertElement = document.getElementById(alertId);
+        if (alertElement) {
+            alertElement.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (alertElement.parentNode) {
+                    alertElement.parentNode.removeChild(alertElement);
+                }
+            }, 300);
+        }
+    };
+
+    // Show loading
+    function showLoading(show) {
+        const tbody = document.getElementById('customersTableBody');
+        
+        if (show) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading customers...</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Show empty state
+    function showEmptyState(message = 'No customers found') {
+        const tbody = document.getElementById('customersTableBody');
+        
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>${message}</h3>
+                    <p>There are no customers matching your criteria.</p>
+                </td>
+            </tr>
+        `;
+        
+        document.getElementById('paginationContainer').style.display = 'none';
+    }
+
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+});
 </script>
 
-<% if (success_msg && success_msg.length > 0) { %>
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: '<%= success_msg[0] %>',
-            confirmButtonColor: '#8B7355'
-        });
-    </script>
-<% } %>
-
-<% if (error_msg && error_msg.length > 0) { %>
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Action Failed',
-            text: '<%= error_msg[0] %>',
-            confirmButtonColor: '#8B7355'
-        });
-    </script>
-<% } %>
-
-<%- include('../partials/admin/footer') %>
+</main>
+</body>
+</html>

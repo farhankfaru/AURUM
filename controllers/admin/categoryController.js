@@ -1,398 +1,736 @@
-
 const Category = require('../../models/categorySchema');
 
+const isDev = process.env.NODE_ENV !== 'production';
 
-const loadCategories = async (req, res) => {
+// Get all categories with filtering, searching, and pagination
+const getAllCategories = async (req, res) => {
     try {
-        const search = req.query.search || "";
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = parseInt(req.query.limit) || 100; // Default to 100 to get all categories
+        const search = req.query.search || '';
+        const status = req.query.status || 'all';
+        const offerStatus = req.query.offerStatus || 'all';
+        const sortBy = req.query.sortBy || 'createdAt';
+        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+
+        // Build search query for non-deleted categories only
+        let searchQuery = { isDeleted: false };
+        
+        if (search) {
+            searchQuery.$or = [
+                { categoryname: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Filter by listed status
+        if (status === 'listed') {
+            searchQuery.islisted = true;
+        } else if (status === 'unlisted') {
+            searchQuery.islisted = false;
+        }
+
+        // Filter by offer status
+        if (offerStatus === 'with-offers') {
+            searchQuery.categoryoffer = { $gt: 0 };
+        } else if (offerStatus === 'no-offers') {
+            searchQuery.categoryoffer = { $lte: 0 };
+        }
+
         const skip = (page - 1) * limit;
 
-        const searchRegex = new RegExp(".*" + search.trim() + ".*", "i");
-        const query = { 
-            categoryname: { $regex: searchRegex },
-            isDeleted: false
-        };
+        // Default sort by createdAt desc (latest first)
+        let sortOptions = {};
+        if (sortBy === 'createdAt') {
+            sortOptions = { createdAt: -1 };
+        } else {
+            sortOptions = { [sortBy]: sortOrder };
+        }
 
-        const categories = await Category.find(query)
-            .sort({ createdAt: -1 })
+        // Get categories with pagination
+        const categories = await Category.find(searchQuery)
+            .sort(sortOptions)
             .skip(skip)
             .limit(limit)
-            .exec();
+            .lean();
 
-        const count = await Category.countDocuments(query);
-        const totalPages = Math.ceil(count / limit);
-        
-        res.render('categories', {
-            categories: categories,
-            totalPages: totalPages,
-            currentPage: page,
-            search: search,
-            success_msg: req.flash('success_msg'),
-            error_msg: req.flash('error_msg')
+        // Get total count for pagination
+        const totalCategories = await Category.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalCategories / limit);
+
+        // Get category statistics
+        const stats = {
+            total: await Category.countDocuments({ isDeleted: false }),
+            listed: await Category.countDocuments({ isDeleted: false, islisted: true }),
+            unlisted: await Category.countDocuments({ isDeleted: false, islisted: false }),
+            withOffers: await Category.countDocuments({ isDeleted: false, categoryoffer: { $gt: 0 } }),
+            deleted: await Category.countDocuments({ isDeleted: true })
+        };
+
+        console.log(`=== CATEGORY CONTROLLER ===`);
+        console.log(`Total categories found: ${categories.length}`);
+        console.log(`Stats:`, stats);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                categories,
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalCategories,
+                    hasNext: page < totalPages,
+                    hasPrev: page > 1,
+                    limit
+                },
+                stats,
+                filters: {
+                    search,
+                    status,
+                    offerStatus,
+                    sortBy,
+                    sortOrder: req.query.sortOrder || 'desc'
+                }
+            }
         });
 
     } catch (error) {
-        console.error("Error loading category page:", error.message);
-        req.flash('error_msg', 'Error: Failed to load categories.');
-        res.redirect("/admin/pageerror");
+        console.error('Get categories error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching categories'
+        });
     }
 };
 
-
-const addCategory = async (req, res) => {
+// Get category statistics
+const getCategoryStats = async (req, res) => {
     try {
-        const categoryNameInput = req.body.categoryname || '';
-        const descriptionInput = req.body.description || '';
-        
-        const trimmedName = categoryNameInput.trim();
-        const trimmedDescription = descriptionInput.trim();
+        const stats = {
+            total: await Category.countDocuments({ isDeleted: false }),
+            listed: await Category.countDocuments({ isDeleted: false, islisted: true }),
+            unlisted: await Category.countDocuments({ isDeleted: false, islisted: false }),
+            withOffers: await Category.countDocuments({ isDeleted: false, categoryoffer: { $gt: 0 } }),
+            deleted: await Category.countDocuments({ isDeleted: true })
+        };
 
-        if (trimmedName === '' || trimmedDescription === '') {
-            req.flash('error_msg', 'Error: Name and description cannot be blank.');
-            return res.redirect('/admin/categories');
-        }
-
-        if (/^\d+$/.test(trimmedName)) {
-            req.flash('error_msg', 'Error: Category name cannot consist only of numbers.');
-            return res.redirect('/admin/categories');
-        }
-
-        const existingCategory = await Category.findOne({ 
-            categoryname: trimmedName,
-            isDeleted: false 
+        res.status(200).json({
+            success: true,
+            data: stats
         });
-        
-        if (existingCategory) {
-            req.flash('error_msg', 'Error: A category with this exact name already exists.');
-            return res.redirect('/admin/categories');
+
+    } catch (error) {
+        console.error('Get category stats error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching category statistics'
+        });
+    }
+};
+
+// Create new category
+const createCategory = async (req, res) => {
+    try {
+        const { categoryname, description } = req.body;
+
+        // Validation
+        if (!categoryname || !description) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category name and description are required'
+            });
         }
 
+        // Trim and validate inputs
+        const trimmedName = categoryname.trim();
+        const trimmedDescription = description.trim();
+
+        if (trimmedName.length < 2 || trimmedName.length > 50) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category name must be between 2 and 50 characters'
+            });
+        }
+
+        if (trimmedDescription.length < 10 || trimmedDescription.length > 500) {
+            return res.status(400).json({
+                success: false,
+                message: 'Description must be between 10 and 500 characters'
+            });
+        }
+
+        // Check if category with same name exists (case-insensitive)
+        const existingCategory = await Category.findOne({
+            categoryname: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
+            isDeleted: false
+        });
+
+        if (existingCategory) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category with this name already exists'
+            });
+        }
+
+        // Create new category
         const newCategory = new Category({
             categoryname: trimmedName,
             description: trimmedDescription,
             islisted: true,
             categoryoffer: 0,
-            discountType: 'percentage',
-            isDeleted: false
-        });
-
-        await newCategory.save();
-        req.flash('success_msg', 'Success: New category has been added successfully!');
-        res.redirect('/admin/categories');
-
-    } catch (error) {
-        console.error("Error adding category:", error.message);
-        req.flash('error_msg', 'Error: Failed to add category. Please try again.');
-        res.redirect('/admin/categories');
-    }
-};
-
-
-const getCategory = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            return res.status(404).json({ success: false, message: 'Category not found' });
-        }
-
-        res.json({
-            success: true,
-            category: {
-                _id: category._id,
-                categoryname: category.categoryname,
-                description: category.description,
-                islisted: category.islisted,
-                categoryoffer: category.categoryoffer,
-                discountType: category.discountType || 'percentage'
-            }
-        });
-
-    } catch (error) {
-        console.error("Error getting category:", error.message);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-};
-
-
-const editCategory = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        const { categoryname, description } = req.body;
-        
-        const trimmedName = categoryname.trim();
-        const trimmedDescription = description.trim();
-
-        if (trimmedName === '' || trimmedDescription === '') {
-            req.flash('error_msg', 'Error: Name and description cannot be blank.');
-            return res.redirect('/admin/categories');
-        }
-
-        if (/^\d+$/.test(trimmedName)) {
-            req.flash('error_msg', 'Error: Category name cannot consist only of numbers.');
-            return res.redirect('/admin/categories');
-        }
-
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            req.flash('error_msg', 'Error: Category not found.');
-            return res.redirect('/admin/categories');
-        }
-
-        const existingCategory = await Category.findOne({ 
-            categoryname: trimmedName,
-            _id: { $ne: categoryId },
-            isDeleted: false
-        });
-        
-        if (existingCategory) {
-            req.flash('error_msg', 'Error: Another category with this name already exists.');
-            return res.redirect('/admin/categories');
-        }
-
-        await Category.findByIdAndUpdate(categoryId, {
-            categoryname: trimmedName,
-            description: trimmedDescription
-        });
-
-        req.flash('success_msg', 'Success: Category has been updated successfully!');
-        res.redirect('/admin/categories');
-
-    } catch (error) {
-        console.error("Error editing category:", error.message);
-        req.flash('error_msg', 'Error: Failed to update category. Please try again.');
-        res.redirect('/admin/categories');
-    }
-};
-
-
-const toggleCategoryStatus = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            req.flash('error_msg', 'Error: Category not found.');
-            return res.redirect('/admin/categories');
-        }
-
-        const newStatus = !category.islisted;
-        await Category.findByIdAndUpdate(categoryId, { islisted: newStatus });
-
-        const statusText = newStatus ? 'listed' : 'unlisted';
-        req.flash('success_msg', `Success: Category has been ${statusText} successfully!`);
-        res.redirect('/admin/categories');
-
-    } catch (error) {
-        console.error("Error toggling category status:", error.message);
-        req.flash('error_msg', 'Error: Failed to update category status. Please try again.');
-        res.redirect('/admin/categories');
-    }
-};
-
-const deleteCategory = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            req.flash('error_msg', 'Error: Category not found.');
-            return res.redirect('/admin/categories');
-        }
-
-        await Category.findByIdAndUpdate(categoryId, { 
-            isDeleted: true,
-            islisted: false
-        });
-
-        req.flash('success_msg', 'Success: Category has been deleted successfully!');
-        res.redirect('/admin/categories');
-
-    } catch (error) {
-        console.error("Error deleting category:", error.message);
-        req.flash('error_msg', 'Error: Failed to delete category. Please try again.');
-        res.redirect('/admin/categories');
-    }
-};
-
-
-const addOffer = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        const discountValue = parseFloat(req.body.discountValue);
-        const discountType = req.body.discountType;
-
-       
-        if (!discountValue || discountValue <= 0) {
-            req.flash('error_msg', 'Error: Discount value must be greater than 0.');
-            return res.redirect('/admin/categories');
-        }
-
-        if (discountType === 'percentage' && (discountValue < 1 || discountValue > 90)) {
-            req.flash('error_msg', 'Error: Percentage discount must be between 1% and 90%.');
-            return res.redirect('/admin/categories');
-        }
-
-        if (discountType === 'fixed' && discountValue > 50000) {
-            req.flash('error_msg', 'Error: Fixed discount cannot exceed ₹50,000.');
-            return res.redirect('/admin/categories');
-        }
-
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            req.flash('error_msg', 'Error: Category not found.');
-            return res.redirect('/admin/categories');
-        }
-
-        await Category.findByIdAndUpdate(categoryId, { 
-            categoryoffer: discountValue,
-            discountType: discountType
-        });
-
-        const discountText = discountType === 'percentage' ? `${discountValue}%` : `₹${discountValue}`;
-        req.flash('success_msg', `Success: ${discountText} discount has been added to the category!`);
-        res.redirect('/admin/categories');
-
-    } catch (error) {
-        console.error("Error adding discount:", error.message);
-        req.flash('error_msg', 'Error: Failed to add discount. Please try again.');
-        res.redirect('/admin/categories');
-    }
-};
-
-
-const editOffer = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        const discountValue = parseFloat(req.body.discountValue);
-        const discountType = req.body.discountType;
-
-        
-        if (!discountValue || discountValue <= 0) {
-            req.flash('error_msg', 'Error: Discount value must be greater than 0.');
-            return res.redirect('/admin/categories');
-        }
-
-        if (discountType === 'percentage' && (discountValue < 1 || discountValue > 90)) {
-            req.flash('error_msg', 'Error: Percentage discount must be between 1% and 90%.');
-            return res.redirect('/admin/categories');
-        }
-
-        if (discountType === 'fixed' && discountValue > 50000) {
-            req.flash('error_msg', 'Error: Fixed discount cannot exceed ₹50,000.');
-            return res.redirect('/admin/categories');
-        }
-
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            req.flash('error_msg', 'Error: Category not found.');
-            return res.redirect('/admin/categories');
-        }
-
-        await Category.findByIdAndUpdate(categoryId, { 
-            categoryoffer: discountValue,
-            discountType: discountType
-        });
-
-        const discountText = discountType === 'percentage' ? `${discountValue}%` : `₹${discountValue}`;
-        req.flash('success_msg', `Success: Discount has been updated to ${discountText}!`);
-        res.redirect('/admin/categories');
-
-    } catch (error) {
-        console.error("Error editing discount:", error.message);
-        req.flash('error_msg', 'Error: Failed to update discount. Please try again.');
-        res.redirect('/admin/categories');
-    }
-};
-
-
-const removeOffer = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-        
-        if (!category) {
-            req.flash('error_msg', 'Error: Category not found.');
-            return res.redirect('/admin/categories');
-        }
-
-        await Category.findByIdAndUpdate(categoryId, { 
-            categoryoffer: 0,
             discountType: 'percentage'
         });
 
-        req.flash('success_msg', 'Success: Discount has been removed from the category!');
-        res.redirect('/admin/categories');
+        const savedCategory = await newCategory.save();
+
+        if (isDev) console.log('Category created:', savedCategory.categoryname);
+
+        res.status(201).json({
+            success: true,
+            message: 'Category created successfully',
+            data: savedCategory
+        });
 
     } catch (error) {
-        console.error("Error removing discount:", error.message);
-        req.flash('error_msg', 'Error: Failed to remove discount. Please try again.');
-        res.redirect('/admin/categories');
+        console.error('Create category error:', error);
+        
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category with this name already exists'
+            });
+        }
+
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                success: false,
+                message: messages.join(', ')
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Error creating category'
+        });
     }
 };
 
-
-const getActiveCategories = async () => {
+// Get category by ID
+const getCategoryById = async (req, res) => {
     try {
-        return await Category.find({ 
-            islisted: true, 
+        const categoryId = req.params.id;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        const category = await Category.findOne({ 
+            _id: categoryId, 
             isDeleted: false 
-        }).sort({ createdAt: -1 });
+        }).lean();
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: category
+        });
+
     } catch (error) {
-        console.error("Error getting active categories:", error.message);
-        return [];
+        console.error('Get category by ID error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching category'
+        });
     }
 };
 
-const clearSearch = async (req, res) => {
+// Update category
+const updateCategory = async (req, res) => {
     try {
-        res.redirect('/admin/categories');
+        const categoryId = req.params.id;
+        const { categoryname, description } = req.body;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        // Validation
+        if (!categoryname || !description) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category name and description are required'
+            });
+        }
+
+        // Trim and validate inputs
+        const trimmedName = categoryname.trim();
+        const trimmedDescription = description.trim();
+
+        if (trimmedName.length < 2 || trimmedName.length > 50) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category name must be between 2 and 50 characters'
+            });
+        }
+
+        if (trimmedDescription.length < 10 || trimmedDescription.length > 500) {
+            return res.status(400).json({
+                success: false,
+                message: 'Description must be between 10 and 500 characters'
+            });
+        }
+
+        // Check if category exists
+        const existingCategory = await Category.findOne({ 
+            _id: categoryId, 
+            isDeleted: false 
+        });
+
+        if (!existingCategory) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        // Check if another category with same name exists (excluding current)
+        const duplicateCategory = await Category.findOne({
+            _id: { $ne: categoryId },
+            categoryname: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
+            isDeleted: false
+        });
+
+        if (duplicateCategory) {
+            return res.status(400).json({
+                success: false,
+                message: 'Another category with this name already exists'
+            });
+        }
+
+        // Update category
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            {
+                categoryname: trimmedName,
+                description: trimmedDescription,
+                updatedAt: new Date()
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (isDev) console.log('Category updated:', updatedCategory.categoryname);
+
+        res.status(200).json({
+            success: true,
+            message: 'Category updated successfully',
+            data: updatedCategory
+        });
+
     } catch (error) {
-        console.error("Error clearing search:", error.message);
-        res.redirect('/admin/categories');
+        console.error('Update category error:', error);
+        
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Another category with this name already exists'
+            });
+        }
+
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                success: false,
+                message: messages.join(', ')
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Error updating category'
+        });
+    }
+};
+
+// Toggle category status (list/unlist)
+const toggleCategoryStatus = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        const category = await Category.findOne({ 
+            _id: categoryId, 
+            isDeleted: false 
+        });
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        // Toggle the listing status
+        const newStatus = !category.islisted;
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            { 
+                islisted: newStatus,
+                updatedAt: new Date()
+            },
+            { new: true }
+        );
+
+        const action = newStatus ? 'listed' : 'unlisted';
+        if (isDev) console.log(`Category ${action}:`, updatedCategory.categoryname);
+
+        res.status(200).json({
+            success: true,
+            message: `Category ${action} successfully`,
+            data: updatedCategory
+        });
+
+    } catch (error) {
+        console.error('Toggle category status error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating category status'
+        });
+    }
+};
+
+// Soft delete category (hide from users, keep in database)
+const softDeleteCategory = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        const category = await Category.findOne({ 
+            _id: categoryId, 
+            isDeleted: false 
+        });
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        // Soft delete the category
+        const deletedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            { 
+                isDeleted: true,
+                islisted: false, // Also unlist when deleting
+                updatedAt: new Date()
+            },
+            { new: true }
+        );
+
+        if (isDev) console.log('Category soft deleted:', deletedCategory.categoryname);
+
+        res.status(200).json({
+            success: true,
+            message: 'Category deleted successfully',
+            data: deletedCategory
+        });
+
+    } catch (error) {
+        console.error('Soft delete category error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting category'
+        });
+    }
+};
+
+// Add offer to category
+const addOffer = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+        const { discountType, categoryoffer } = req.body;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        // Validation
+        if (!discountType || categoryoffer === undefined || categoryoffer === null) {
+            return res.status(400).json({
+                success: false,
+                message: 'Discount type and offer value are required'
+            });
+        }
+
+        if (!['percentage', 'fixed'].includes(discountType)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Discount type must be either "percentage" or "fixed"'
+            });
+        }
+
+        const offerValue = parseFloat(categoryoffer);
+        if (isNaN(offerValue) || offerValue <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Offer value must be a positive number'
+            });
+        }
+
+        if (discountType === 'percentage' && offerValue > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Percentage discount cannot be more than 100%'
+            });
+        }
+
+        if (discountType === 'fixed' && offerValue > 10000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Fixed discount cannot be more than ₹10,000'
+            });
+        }
+
+        const category = await Category.findOne({ 
+            _id: categoryId, 
+            isDeleted: false 
+        });
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        if (category.categoryoffer > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category already has an offer. Use edit offer instead.'
+            });
+        }
+
+        // Add the offer
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            {
+                discountType: discountType,
+                categoryoffer: offerValue,
+                updatedAt: new Date()
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (isDev) console.log(`Offer added to category:`, updatedCategory.categoryname);
+
+        res.status(200).json({
+            success: true,
+            message: 'Offer added successfully',
+            data: updatedCategory
+        });
+
+    } catch (error) {
+        console.error('Add offer error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error adding offer to category'
+        });
+    }
+};
+
+// Edit existing offer
+const editOffer = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+        const { discountType, categoryoffer } = req.body;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        // Validation
+        if (!discountType || categoryoffer === undefined || categoryoffer === null) {
+            return res.status(400).json({
+                success: false,
+                message: 'Discount type and offer value are required'
+            });
+        }
+
+        if (!['percentage', 'fixed'].includes(discountType)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Discount type must be either "percentage" or "fixed"'
+            });
+        }
+
+        const offerValue = parseFloat(categoryoffer);
+        if (isNaN(offerValue) || offerValue <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Offer value must be a positive number'
+            });
+        }
+
+        if (discountType === 'percentage' && offerValue > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Percentage discount cannot be more than 100%'
+            });
+        }
+
+        if (discountType === 'fixed' && offerValue > 10000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Fixed discount cannot be more than ₹10,000'
+            });
+        }
+
+        const category = await Category.findOne({ 
+            _id: categoryId, 
+            isDeleted: false 
+        });
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        if (category.categoryoffer <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No existing offer found to edit'
+            });
+        }
+
+        // Update the offer
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            {
+                discountType: discountType,
+                categoryoffer: offerValue,
+                updatedAt: new Date()
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (isDev) console.log(`Offer updated for category:`, updatedCategory.categoryname);
+
+        res.status(200).json({
+            success: true,
+            message: 'Offer updated successfully',
+            data: updatedCategory
+        });
+
+    } catch (error) {
+        console.error('Edit offer error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating offer'
+        });
+    }
+};
+
+// Remove offer from category
+const removeOffer = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category ID format'
+            });
+        }
+
+        const category = await Category.findOne({ 
+            _id: categoryId, 
+            isDeleted: false 
+        });
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        if (category.categoryoffer <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No offer found to remove'
+            });
+        }
+
+        // Remove the offer
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            {
+                categoryoffer: 0,
+                discountType: 'percentage', // Reset to default
+                updatedAt: new Date()
+            },
+            { new: true }
+        );
+
+        if (isDev) console.log(`Offer removed from category:`, updatedCategory.categoryname);
+
+        res.status(200).json({
+            success: true,
+            message: 'Offer removed successfully',
+            data: updatedCategory
+        });
+
+    } catch (error) {
+        console.error('Remove offer error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error removing offer'
+        });
     }
 };
 
 module.exports = {
-    loadCategories,
-    addCategory,
-    getCategory,
-    editCategory,
+    getAllCategories,
+    getCategoryStats,
+    createCategory,
+    getCategoryById,
+    updateCategory,
     toggleCategoryStatus,
-    deleteCategory,
+    softDeleteCategory,
     addOffer,
     editOffer,
-    removeOffer,
-    getActiveCategories,
-    clearSearch
+    removeOffer
 };

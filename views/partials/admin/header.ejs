@@ -1,19 +1,11 @@
-<!-- This file is located at: views/partials/admin/header.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURUM - Admin</title>
-
-    <!-- Google Fonts and Font Awesome Icons -->
+    <title><%= title || 'AURUM Admin' %></title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-    <!-- This script includes the SweetAlert2 library for professional pop-up alerts. -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
         :root { 
             --aurum-gold: #8B7355; 
@@ -51,24 +43,133 @@
         .menu-item i { width: 20px; margin-right: 1rem; font-size: 1rem; text-align: center; }
 
         /* Main Content Area Styles */
-        .admin-main { margin-left: 280px; margin-top: 70px; padding: 2rem; height: calc(100vh - 70px); transition: margin-left 0.3s ease; overflow-y: auto; }
+        .admin-main { margin-left: 280px; margin-top: 70px; min-height: calc(100vh - 70px); transition: margin-left 0.3s ease; }
         .admin-main.expanded { margin-left: 0; }
 
-        /* Custom Scrollbar for Main Content Area */
+        /* Custom Scrollbar */
         .admin-main::-webkit-scrollbar { width: 8px; }
         .admin-main::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         .admin-main::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #8B7355, #A0956B); border-radius: 10px; }
         .admin-main::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #6B5B47, #8B7355); }
         .admin-main { scrollbar-width: thin; scrollbar-color: #8B7355 #f1f1f1; }
 
-        .page-content { animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         /* Responsive & Overlay Styles */
-        @media (max-width: 1024px) { .admin-main { margin-left: 0; } .admin-sidebar { transform: translateX(-100%); } .admin-sidebar.show { transform: translateX(0); } }
-        @media (max-width: 768px) { .admin-header { padding: 0 1rem; } .header-title { display: none; } }
+        @media (max-width: 1024px) { 
+            .admin-main { margin-left: 0; } 
+            .admin-sidebar { transform: translateX(-100%); } 
+            .admin-sidebar.show { transform: translateX(0); } 
+        }
+        @media (max-width: 768px) { 
+            .admin-header { padding: 0 1rem; } 
+            .header-title { display: none; } 
+        }
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 998; display: none; }
         .sidebar-overlay.show { display: block; }
+
+        /* Logout Confirmation Modal */
+        .logout-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 10001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logout-modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .logout-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logout-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logout-modal-icon {
+            width: 50px;
+            height: 50px;
+            background: #fef3c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d97706;
+            font-size: 1.5rem;
+        }
+
+        .logout-modal h3 {
+            color: var(--dark-text);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .logout-modal p {
+            margin-bottom: 2rem;
+            color: var(--light-text);
+            line-height: 1.5;
+        }
+
+        .logout-modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .logout-modal-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-modal-btn.cancel {
+            background: #f8f9fa;
+            color: var(--dark-text);
+            border: 1px solid var(--border-color);
+        }
+
+        .logout-modal-btn.cancel:hover {
+            background: #e9ecef;
+        }
+
+        .logout-modal-btn.confirm {
+            background: #dc2626;
+            color: white;
+        }
+
+        .logout-modal-btn.confirm:hover {
+            background: #b91c1c;
+        }
     </style>
 </head>
 <body>
@@ -78,30 +179,164 @@
             <div class="admin-brand">AURUM</div>
         </div>
         <div class="header-right">
-            <h1 class="header-title" id="pageTitle">Admin Panel</h1>
-            <form action="/admin/logout" method="POST" style="display: inline;"><button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></form>
+            <h1 class="header-title"><%= pageTitle || 'Admin Panel' %></h1>
+            <button type="button" class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </header>
+
     <nav class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-menu">
             <div class="menu-section">
                 <div class="section-title">Main</div>
-                <a href="/admin/dashboard" class="menu-item" data-page="Dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-                <a href="/admin/customers" class="menu-item" data-page="Customers"><i class="fas fa-users"></i><span>Customers</span></a>
-                <a href="/admin/orders" class="menu-item" data-page="Orders"><i class="fas fa-shopping-cart"></i><span>Orders</span></a>
+                <a href="/admin/dashboard" class="menu-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                </a>
+                <a href="/admin/customers" class="menu-item <%= currentPage === 'customers' ? 'active' : '' %>">
+                    <i class="fas fa-users"></i><span>Customers</span>
+                </a>
+                <a href="/admin/orders" class="menu-item <%= currentPage === 'orders' ? 'active' : '' %>">
+                    <i class="fas fa-shopping-cart"></i><span>Orders</span>
+                </a>
             </div>
             <div class="menu-section">
                 <div class="section-title">Catalog</div>
-                <a href="/admin/categories" class="menu-item" data-page="Categories"><i class="fas fa-tags"></i><span>Categories</span></a>
-                <a href="/admin/products" class="menu-item" data-page="Products"><i class="fas fa-box"></i><span>Products</span></a>
-                <a href="/admin/add-products" class="menu-item" data-page="Add Products"><i class="fas fa-plus-circle"></i><span>Add Products</span></a>
+                <a href="/admin/categories" class="menu-item <%= currentPage === 'categories' ? 'active' : '' %>">
+                    <i class="fas fa-tags"></i><span>Categories</span>
+                </a>
+                <a href="/admin/products" class="menu-item <%= currentPage === 'products' ? 'active' : '' %>">
+                    <i class="fas fa-box"></i><span>Products</span>
+                </a>
+                <a href="/admin/add-products" class="menu-item <%= currentPage === 'add-products' ? 'active' : '' %>">
+                    <i class="fas fa-plus-circle"></i><span>Add Products</span>
+                </a>
             </div>
             <div class="menu-section">
                 <div class="section-title">Marketing</div>
-                <a href="/admin/coupons" class="menu-item" data-page="Coupons"><i class="fas fa-ticket-alt"></i><span>Coupons</span></a>
-                <a href="/admin/banners" class="menu-item" data-page="Banners"><i class="fas fa-image"></i><span>Banners</span></a>
+                <a href="/admin/coupons" class="menu-item <%= currentPage === 'coupons' ? 'active' : '' %>">
+                    <i class="fas fa-ticket-alt"></i><span>Coupons</span>
+                </a>
+                <a href="/admin/banners" class="menu-item <%= currentPage === 'banners' ? 'active' : '' %>">
+                    <i class="fas fa-image"></i><span>Banners</span>
+                </a>
             </div>
         </div>
     </nav>
+
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal-overlay" id="logoutModal">
+        <div class="logout-modal">
+            <div class="logout-modal-header">
+                <div class="logout-modal-icon">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h3>Confirm Logout</h3>
+            </div>
+            <p>Are you sure you want to logout from the admin panel? You will need to login again to access the dashboard.</p>
+            <div class="logout-modal-actions">
+                <button class="logout-modal-btn cancel" id="logoutCancel">Cancel</button>
+                <button class="logout-modal-btn confirm" id="logoutConfirm">
+                    <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>
+                    Yes, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
     <main class="admin-main" id="adminMain">
+        <!-- Page content will be inserted here -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const adminSidebar = document.getElementById('adminSidebar');
+            const adminMain = document.getElementById('adminMain');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutModal = document.getElementById('logoutModal');
+            const logoutCancel = document.getElementById('logoutCancel');
+            const logoutConfirm = document.getElementById('logoutConfirm');
+            
+            // Menu toggle functionality
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        adminSidebar.classList.toggle('show');
+                        sidebarOverlay.classList.toggle('show');
+                    } else {
+                        adminSidebar.classList.toggle('collapsed');
+                        adminMain.classList.toggle('expanded');
+                    }
+                });
+            }
+            
+            // Sidebar overlay click
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    adminSidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            // Logout functionality with modal confirmation
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    logoutModal.classList.add('show');
+                });
+            }
+
+            // Cancel logout
+            if (logoutCancel) {
+                logoutCancel.addEventListener('click', function() {
+                    logoutModal.classList.remove('show');
+                });
+            }
+
+            // Confirm logout
+            if (logoutConfirm) {
+                logoutConfirm.addEventListener('click', async function() {
+                    try {
+                        // Show loading state
+                        logoutConfirm.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Logging out...';
+                        logoutConfirm.disabled = true;
+                        
+                        const response = await fetch('/admin/logout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        
+                        // Always redirect to login regardless of response
+                        // This handles both successful logout and network errors
+                        setTimeout(() => {
+                            window.location.href = '/admin/login';
+                        }, 100);
+                        
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        // Even if there's an error, redirect to login
+                        window.location.href = '/admin/login';
+                    }
+                });
+            }
+
+            // Close modal when clicking outside
+            logoutModal.addEventListener('click', function(e) {
+                if (e.target === logoutModal) {
+                    logoutModal.classList.remove('show');
+                }
+            });
+
+            // ESC key to close modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && logoutModal.classList.contains('show')) {
+                    logoutModal.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

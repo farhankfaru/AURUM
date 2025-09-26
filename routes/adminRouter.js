@@ -1,37 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin/adminController');
-const customerController = require('../controllers/admin/customerControllers');
+const customerController = require('../controllers/admin/customerController');
 const categoryController = require('../controllers/admin/categoryController');
-const { adminAuth } = require('../middlewares/auth');
+const { adminAuth, adminGuestOnly } = require('../middlewares/auth'); // ADD adminGuestOnly
 
-// Admin Authentication
-router.get('/login', adminController.loadLogin);
-router.post('/login', adminController.login);
-router.post('/logout', adminController.logout);
+// Admin Authentication Routes - ADD adminGuestOnly middleware
+router.get('/login', adminGuestOnly, adminController.loadLogin);  // ADD adminGuestOnly HERE
+router.post('/login', adminGuestOnly, adminController.login);     // ADD adminGuestOnly HERE
+router.post('/logout', adminAuth, adminController.logout);
 
-// Dashboard
-router.get('/', adminAuth, adminController.loadDashboard);
+// Admin Page Routes - Each page loads separately
+router.get('/', adminAuth, adminController.loadDashboard);  // Default to dashboard
 router.get('/dashboard', adminAuth, adminController.loadDashboard);
+router.get('/customers', adminAuth, adminController.loadCustomers);
+router.get('/categories', adminAuth, adminController.loadCategories);
+router.get('/error', adminController.pageerror);
 
-// Customer Management
-router.get('/customers', adminAuth, customerController.customerInfo);
-router.post('/customers/block/:id', adminAuth, customerController.blockUser);
-router.post('/customers/unblock/:id', adminAuth, customerController.unblockUser);
+// Customer Management API Routes
+router.get('/api/customers', adminAuth, customerController.getAllCustomers);
+router.get('/api/customers/stats', adminAuth, customerController.getCustomerStats);
+router.get('/api/customers/:id', adminAuth, customerController.getCustomerById);
+router.post('/api/customers/:id/block', adminAuth, customerController.blockCustomer);
+router.post('/api/customers/:id/unblock', adminAuth, customerController.unblockCustomer);
 
-// Category Management - 
-router.get('/categories', adminAuth, categoryController.loadCategories);
-router.post('/categories', adminAuth, categoryController.addCategory);
-router.get('/categories/get/:id', adminAuth, categoryController.getCategory);
-router.post('/categories/edit/:id', adminAuth, categoryController.editCategory);
-router.post('/categories/toggle/:id', adminAuth, categoryController.toggleCategoryStatus);
-router.post('/categories/delete/:id', adminAuth, categoryController.deleteCategory);
-router.post('/categories/add-offer/:id', adminAuth, categoryController.addOffer);
-router.post('/categories/edit-offer/:id', adminAuth, categoryController.editOffer);
-router.post('/categories/remove-offer/:id', adminAuth, categoryController.removeOffer);
-router.get('/categories/clear-search', adminAuth, categoryController.clearSearch);
+// Category Management API Routes - UNCOMMENTED AND UPDATED
+router.get('/api/categories', adminAuth, categoryController.getAllCategories);
+router.get('/api/categories/stats', adminAuth, categoryController.getCategoryStats);
+router.post('/api/categories', adminAuth, categoryController.createCategory);
+router.get('/api/categories/:id', adminAuth, categoryController.getCategoryById);
+router.put('/api/categories/:id', adminAuth, categoryController.updateCategory);
+router.post('/api/categories/:id/toggle-status', adminAuth, categoryController.toggleCategoryStatus);
+router.post('/api/categories/:id/soft-delete', adminAuth, categoryController.softDeleteCategory);
 
-// Error Page
-router.get('/pageerror', adminController.pageerror);
+// Category Offer Management API Routes - PROPER REST METHODS
+router.post('/api/categories/:id/add-offer', adminAuth, categoryController.addOffer);
+router.put('/api/categories/:id/edit-offer', adminAuth, categoryController.editOffer);
+router.delete('/api/categories/:id/remove-offer', adminAuth, categoryController.removeOffer);
 
 module.exports = router;

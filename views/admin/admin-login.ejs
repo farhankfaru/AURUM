@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURUM - Admin Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+    <title>Admin Portal - AURUM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -14,411 +13,611 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-            overflow-y: auto;
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #f8f6f3 0%, #ebe6e0 100%);
+        .container {
+            display: flex;
             min-height: 100vh;
+            background: #fff;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .image-section {
+            flex: 1;
+            background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
+            background-image: url('https://images.unsplash.com/photo-1568992687947-868a62a9f521?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
-            position: relative;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none"><defs><pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100"><circle cx="25" cy="25" r="0.3" fill="%23D4C4A8" opacity="0.1"/><circle cx="75" cy="75" r="0.3" fill="%23D4C4A8" opacity="0.1"/><circle cx="50" cy="10" r="0.3" fill="%23D4C4A8" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
-            pointer-events: none;
-            z-index: -1;
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(139,115,85,0.9) 0%, rgba(160,149,107,0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 2rem;
         }
 
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(139, 115, 85, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(139, 115, 85, 0.1);
+        .brand-info h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            animation: slideInUp 1s ease-out;
+            letter-spacing: 0.2em;
+            color: #F5F5DC;
+        }
+        
+        .admin-badge {
+            background: rgba(245, 245, 220, 0.2);
+            border: 2px solid #F5F5DC;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            animation: slideInUp 1s ease-out 0.1s both;
+        }
+        
+        .brand-info p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            max-width: 450px;
+            opacity: 0.95;
+            animation: slideInUp 1s ease-out 0.2s both;
+            line-height: 1.8;
+            color: #F5F5DC;
+        }
+
+        .form-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #ffffff;
+        }
+
+        .form-container {
             width: 100%;
-            max-width: 420px;
-            position: relative;
-            z-index: 1;
-            margin: 2rem auto;
+            max-width: 450px;
+            animation: slideInRight 0.8s ease-out;
         }
 
-        .brand-header {
+        .form-header {
             text-align: center;
             margin-bottom: 2rem;
         }
-
-        .brand-title {
-            font-family: 'Playfair Display', serif;
+        
+        .form-header h2 {
             font-size: 2.2rem;
+            font-weight: 600;
             color: #8B7355;
-            font-weight: 400;
-            letter-spacing: 0.15em;
             margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
         }
-
-        .brand-subtitle {
+        
+        .form-header p {
             color: #6B5B47;
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-style: italic;
-            font-weight: 300;
         }
 
-        .admin-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: linear-gradient(135deg, #8B7355, #A0956B);
-            color: white;
-            padding: 0.4rem 1rem;
-            border-radius: 25px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            margin: 0.8rem 0 1.5rem 0;
-            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
-        }
-
-        .form-title {
-            text-align: center;
-            font-size: 1.3rem;
-            color: #2c2c2c;
+        .api-message {
+            padding: 1rem;
+            border-radius: 12px;
             margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
             font-weight: 500;
+            animation: slideInUp 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
         }
 
-        .form-group {
-            margin-bottom: 1.2rem;
+        .api-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .api-message.success {
+            background: #c6f6d5;
+            border: 1px solid #38a169;
+            color: #22543d;
+        }
+
+        .api-message.error {
+            background: #fed7d7;
+            border: 1px solid #e53e3e;
+            color: #c53030;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        
+        .input-container {
             position: relative;
         }
-
-        .form-label {
-            display: block;
-            color: #6B5B47;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 0.4rem;
-            letter-spacing: 0.5px;
-        }
-
-        .form-input {
+        
+        .input-container input {
             width: 100%;
-            padding: 0.9rem 1rem;
-            padding-left: 2.8rem;
-            border: 2px solid rgba(139, 115, 85, 0.2);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            background: rgba(255, 255, 255, 0.8);
-            color: #2c2c2c;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #D4C4A8;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #FEFCF7;
             transition: all 0.3s ease;
             outline: none;
         }
-
-        .form-input:focus {
+        
+        .input-container input:focus {
             border-color: #8B7355;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(139,115,85,0.10);
+            transform: translateY(-2px);
         }
-
+        
+        .input-container input.error {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+        
         .input-icon {
             position: absolute;
-            left: 0.9rem;
-            top: 2rem;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
             color: #8B7355;
-            font-size: 1rem;
-            pointer-events: none;
             transition: color 0.3s ease;
         }
-
-        .password-toggle {
-            position: absolute;
-            right: 0.9rem;
-            top: 2rem;
-            color: #8B7355;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: color 0.3s ease;
-        }
-
-        .password-toggle:hover {
+        
+        .input-container input:focus + .input-icon {
             color: #6B5B47;
         }
+        
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B7355;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .toggle-password:hover { color: #6B5B47; }
 
-        .login-button {
+        .login-btn {
             width: 100%;
+            padding: 1rem;
             background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
             color: white;
-            padding: 0.9rem 2rem;
             border: none;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 1.2rem;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .login-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .login-button:hover::before {
-            left: 100%;
-        }
-
-        .login-button:hover {
+        
+        .login-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 115, 85, 0.4);
+            box-shadow: 0 10px 25px rgba(139,115,85,0.3);
+        }
+        
+        .login-btn:active:not(:disabled) { 
+            transform: translateY(0);
         }
 
-        .divider {
-            text-align: center;
-            margin: 1.5rem 0;
-            position: relative;
-            color: #8B7355;
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .home-link {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            background: rgba(139, 115, 85, 0.9);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-link:hover {
+            background: rgba(107, 91, 71, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .home-link i {
+            margin-right: 0.5rem;
             font-size: 0.8rem;
         }
 
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: rgba(139, 115, 85, 0.2);
-            z-index: 1;
-        }
-
-        .divider span {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 0 1rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .back-to-site {
+        .admin-features {
             text-align: center;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #D4C4A8;
         }
 
-        .back-link {
-            color: #8B7355;
-            text-decoration: none;
+        .admin-features p {
+            color: #6B5B47;
             font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-        }
-
-        .back-link:hover {
-            background: rgba(139, 115, 85, 0.1);
-            transform: translateX(-3px);
-        }
-
-        .error-message {
-            background: rgba(231, 76, 60, 0.1);
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            color: #c0392b;
-            padding: 0.8rem;
-            border-radius: 6px;
             margin-bottom: 1rem;
-            font-size: 0.85rem;
+        }
+
+        .feature-list {
             display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+
+        .feature-item {
+            color: #8B7355;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 0.5rem;
         }
 
+        .feature-item i {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px);}
+            to { opacity: 1; transform: translateX(0);}
+        }
+        
         @media (max-width: 768px) {
-            body {
-                align-items: flex-start;
-                padding-top: 2rem;
-                padding-bottom: 2rem;
-            }
-
-            .login-container {
-                padding: 2rem;
-                margin: 1rem 0;
-                border-radius: 15px;
-            }
-
-            .brand-title {
-                font-size: 2rem;
-            }
-
-            .form-input {
-                padding: 0.8rem;
-                padding-left: 2.5rem;
-                font-size: 0.9rem;
-            }
-
-            .input-icon {
-                left: 0.8rem;
-                top: 1.95rem;
-            }
-
-            .password-toggle {
-                right: 0.8rem;
-                top: 1.95rem;
+            .container { flex-direction: column;}
+            .image-section { min-height: 30vh; flex: none;}
+            .brand-info h1 { font-size: 2.5rem;}
+            .brand-info p { font-size: 1.1rem;}
+            .form-section { padding: 1.5rem;}
+            .form-header h2 { font-size: 1.8rem;}
+            .feature-list { flex-wrap: wrap; }
+            
+            .home-link {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
             }
         }
-
+        
         @media (max-width: 480px) {
-            body {
-                padding: 1rem 0.5rem;
+            .form-section { padding: 1rem;}
+            .input-container input { padding: 0.875rem 0.875rem 0.875rem 2.5rem;}
+            .input-icon {left: 0.875rem;}
+            .toggle-password { right: 0.875rem;}
+            
+            .home-link {
+                top: 0.8rem;
+                left: 0.8rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
             }
-
-            .login-container {
-                padding: 1.5rem;
-                max-width: 100%;
-                margin: 0.5rem 0;
+            
+            .home-link i {
+                margin-right: 0.3rem;
+                font-size: 0.7rem;
             }
-
-            .brand-title {
-                font-size: 1.8rem;
-                letter-spacing: 0.1em;
-            }
-
-            .form-input {
-                padding: 0.7rem;
-                padding-left: 2.3rem;
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-container {
-            animation: fadeInUp 0.5s ease forwards;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="brand-header">
-            <h1 class="brand-title">AURUM</h1>
-            <p class="brand-subtitle">Timeless elegance, exclusive fashion</p>
-            <div class="admin-badge">
-                <i class="fas fa-shield-alt"></i>
-                <span>Admin Portal</span>
+    <a href="/" class="home-link">
+        <i class="fas fa-home"></i> Home
+    </a>
+
+    <div class="container">
+        <div class="image-section">
+            <div class="overlay">
+                <div class="brand-info">
+                    <div class="admin-badge">ADMIN PORTAL</div>
+                    <h1>AURUM</h1>
+                    <p>Administrative access to manage your luxury fashion empire. Secure login required.</p>
+                </div>
             </div>
         </div>
+        
+        <div class="form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Admin Access</h2>
+                    <p>Secure login to manage AURUM's exclusive operations</p>
+                </div>
 
-        <h2 class="form-title">Admin Login</h2>
+                <div id="apiMessage" class="api-message"></div>
 
-        <% if (typeof message !== 'undefined' && message) { %>
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <%= message %>
+                <form id="adminLoginForm" class="login-form">
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="email" id="adminEmail" name="email" placeholder="Admin Email Address" required autocomplete="username">
+                            <i class="fas fa-shield-alt input-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="password" id="adminPassword" name="password" placeholder="Admin Password" required autocomplete="current-password">
+                            <i class="fas fa-lock input-icon"></i>
+                            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <div class="btn-loading" id="btnLoading"></div>
+                        <span id="btnText">Access Admin Panel</span>
+                    </button>
+                </form>
+
+                <div class="admin-features">
+                    <p>Manage your luxury business with powerful tools</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <span>Customers</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-tags"></i>
+                            <span>Categories</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-box"></i>
+                            <span>Products</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        <% } %>
-
-        <form action="/admin/login" method="POST">
-            <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input" 
-                    placeholder="Enter your admin email"
-                    required
-                    value="aurumadmin@gmail.com"
-                >
-                <i class="fas fa-envelope input-icon"></i>
-            </div>
-
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input" 
-                    placeholder="Enter your password"
-                    required
-                >
-                <i class="fas fa-lock input-icon"></i>
-                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
-            </div>
-
-            <button type="submit" class="login-button">
-                <span>Login to Admin Panel</span>
-            </button>
-        </form>
-
-        <div class="divider">
-            <span>or</span>
-        </div>
-
-        <div class="back-to-site">
-            <a href="/" class="back-link">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back to Main Site</span>
-            </a>
         </div>
     </div>
 
     <script>
+        // PREVENT BROWSER CACHE AND HANDLE SESSION VALIDATION
+        (function() {
+            // Clear browser cache on login page load
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+            
+            // Handle back button and prevent caching
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                    // Page came from cache, reload it
+                    window.location.reload(true);
+                }
+            });
+            
+            // Prevent going back to admin pages after logout
+            if (document.referrer && document.referrer.includes('/admin/') && 
+                !document.referrer.includes('/admin/login')) {
+                
+                // Force reload and clear cache
+                window.location.replace(window.location.href);
+                
+                // Clear cache storage if available
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+            }
+            
+            // Disable back button functionality on login page
+            window.history.pushState(null, null, window.location.href);
+            window.addEventListener('popstate', function(event) {
+                window.history.pushState(null, null, window.location.href);
+            });
+        })();
+
+        // Password toggle functionality
         document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
+            const passwordField = document.getElementById('adminPassword');
             const toggleIcon = this;
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
                 toggleIcon.classList.remove('fa-eye');
                 toggleIcon.classList.add('fa-eye-slash');
             } else {
-                passwordInput.type = 'password';
+                passwordField.type = 'password';
                 toggleIcon.classList.remove('fa-eye-slash');
                 toggleIcon.classList.add('fa-eye');
             }
         });
 
-        const errorMessage = document.querySelector('.error-message');
-        if (errorMessage) {
-            setTimeout(() => {
-                errorMessage.style.opacity = '0';
-                errorMessage.style.transform = 'translateY(-10px)';
-                setTimeout(() => errorMessage.remove(), 300);
-            }, 5000);
+        // API message handling
+        function showApiMessage(message, type) {
+            const apiMessage = document.getElementById('apiMessage');
+            apiMessage.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+            apiMessage.className = `api-message ${type} show`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    apiMessage.classList.remove('show');
+                }, 3000);
+            }
         }
+
+        function hideApiMessage() {
+            const apiMessage = document.getElementById('apiMessage');
+            apiMessage.classList.remove('show');
+            setTimeout(() => {
+                apiMessage.className = 'api-message';
+                apiMessage.innerHTML = '';
+            }, 300);
+        }
+
+        // Form validation
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showFieldError(fieldId, show = true) {
+            const field = document.getElementById(fieldId);
+            if (show) {
+                field.classList.add('error');
+            } else {
+                field.classList.remove('error');
+            }
+        }
+
+        // Admin login form submission with fetch API
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+
+            // Reset field errors
+            showFieldError('adminEmail', false);
+            showFieldError('adminPassword', false);
+            hideApiMessage();
+
+            // Client-side validation
+            let hasError = false;
+
+            if (!email) {
+                showApiMessage('Please enter your admin email address', 'error');
+                showFieldError('adminEmail', true);
+                hasError = true;
+            } else if (!validateEmail(email)) {
+                showApiMessage('Please enter a valid email address', 'error');
+                showFieldError('adminEmail', true);
+                hasError = true;
+            }
+
+            if (!password) {
+                showApiMessage('Please enter your password', 'error');
+                showFieldError('adminPassword', true);
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Show loading state
+            loginBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'block';
+
+            try {
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Success
+                    showApiMessage('Login successful! Redirecting to admin panel...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl || '/admin/dashboard';
+                    }, 1500);
+                } else {
+                    // Error from server
+                    showApiMessage(data.message || 'Login failed. Please check your credentials.', 'error');
+                    
+                    // Show field errors based on response
+                    if (response.status === 401) {
+                        showFieldError('adminEmail', true);
+                        showFieldError('adminPassword', true);
+                    }
+                }
+            } catch (error) {
+                console.error('Admin login error:', error);
+                showApiMessage('Network error. Please check your connection and try again.', 'error');
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                btnText.style.display = 'block';
+                btnLoading.style.display = 'none';
+            }
+        });
+
+        // Input field focus handling
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                showFieldError(this.id, false);
+            });
+        });
     </script>
 </body>
 </html>

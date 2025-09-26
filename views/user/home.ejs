@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AURUM - Timeless Menswear Collection</title>
-    <link rel="stylesheet" href="/css/homepage.css">
+    
+    <!-- External CSS Links -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Playfair+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- ✅ FIXED Hero Section Styles -->
+    
+    <!-- Complete Hero Section Styles -->
     <style>
         /* Hero Section Complete Styles */
         .hero {
@@ -20,7 +21,7 @@
             justify-content: center;
             transition: all 0.6s ease;
         }
-
+        
         .hero-background {
             position: absolute;
             top: 0;
@@ -29,18 +30,17 @@
             height: 100%;
             z-index: 1;
         }
-
-        /* ✅ FIXED: Multiple Image Fallbacks */
+        
+        /* Multiple Image Fallbacks */
         .hero-image {
             width: 100%;
             height: 100%;
             /* Try multiple image paths and fallback to external image */
-            background-image: 
-                url('/images/luxury_menswear_hero.jpg'),
-                url('/images/banner.jpg'),
-                url('/luxury_menswear_hero.jpg'),
-                url('/banner.jpg'),
-                url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&h=900&fit=crop&crop=faces');
+            background-image: url('/images/luxury-menswear-hero.jpg'), 
+                             url('/images/banner.jpg'), 
+                             url('/luxury-menswear-hero.jpg'), 
+                             url('/banner.jpg'), 
+                             url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&h=900&fit=crop&crop=faces');
             background-size: cover;
             background-position: center 30%;
             background-repeat: no-repeat;
@@ -48,21 +48,7 @@
             /* Fallback gradient if no image loads */
             background-color: #8B7355;
         }
-
-        /* Test if image loads - remove this after confirming it works */
-        .hero-image::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            z-index: 10;
-            pointer-events: none;
-        }
-
+        
         /* Overlay Variations */
         .hero-overlay {
             position: absolute;
@@ -73,19 +59,19 @@
             z-index: 2;
             transition: all 0.6s ease;
         }
-
+        
         .hero-overlay.dark-overlay {
             background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.2) 100%);
         }
-
+        
         .hero-overlay.minimal-clean {
             background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 100%);
         }
-
+        
         .hero-overlay.gradient-fade {
             background: linear-gradient(135deg, rgba(139,115,85,0.7) 0%, rgba(160,149,107,0.5) 50%, rgba(212,196,168,0.3) 100%);
         }
-
+        
         .hero-content {
             position: relative;
             z-index: 3;
@@ -95,16 +81,16 @@
             padding: 2rem;
             animation: fadeInUp 1s ease forwards;
         }
-
+        
         /* Content color variations for different themes */
         .hero.minimal-clean .hero-content {
             color: #2c2c2c;
         }
-
+        
         .hero.gradient-fade .hero-content {
             color: white;
         }
-
+        
         .hero-title {
             font-family: 'Playfair Display', serif;
             font-size: clamp(2.5rem, 6vw, 5rem);
@@ -114,16 +100,16 @@
             letter-spacing: 0.02em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-
+        
         .hero-title .title-line {
             display: block;
             animation: slideInUp 0.8s ease forwards;
         }
-
+        
         .hero-title .title-line:nth-child(2) {
             animation-delay: 0.2s;
         }
-
+        
         .hero-subtitle {
             font-size: clamp(1rem, 2vw, 1.3rem);
             font-weight: 300;
@@ -134,7 +120,7 @@
             animation: fadeIn 1s ease forwards 0.4s;
             animation-fill-mode: both;
         }
-
+        
         .hero-btn {
             display: inline-flex;
             align-items: center;
@@ -156,21 +142,21 @@
             animation: fadeInUp 1s ease forwards 0.6s;
             animation-fill-mode: both;
         }
-
+        
         /* Button variations for different themes */
         .hero.minimal-clean .hero-btn {
             background: rgba(139, 115, 85, 0.9);
             color: white;
             border-color: rgba(139, 115, 85, 0.6);
         }
-
+        
         .hero.gradient-fade .hero-btn {
             background: rgba(255, 255, 255, 0.9);
             color: #8B7355;
             border-color: rgba(255, 255, 255, 0.6);
         }
-
-        /* ✅ FIXED: Light sweep effect */
+        
+        /* Light sweep effect */
         .hero-btn::before {
             content: '';
             position: absolute;
@@ -182,33 +168,33 @@
             transition: left 0.6s ease;
             z-index: 1;
         }
-
+        
         .hero-btn:hover::before {
             left: 100%;
         }
-
+        
         .hero-btn span,
         .hero-btn i {
             position: relative;
             z-index: 2;
         }
-
+        
         .hero-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.6);
             transform: translateY(-3px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
         }
-
+        
         .hero-btn i {
             transition: transform 0.3s ease;
         }
-
+        
         .hero-btn:hover i {
             transform: translateX(8px);
         }
-
-        /* ✅ FIXED: Style Selector Buttons */
+        
+        /* Style Selector Buttons */
         .hero-style-selector {
             position: absolute;
             top: 50%;
@@ -219,7 +205,7 @@
             gap: 1rem;
             z-index: 4;
         }
-
+        
         .style-btn {
             background: rgba(255, 255, 255, 0.95);
             color: #8B7355;
@@ -235,14 +221,14 @@
             letter-spacing: 0.5px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
+        
         .style-btn:hover {
             background: rgba(139, 115, 85, 0.9);
             color: white;
             transform: translateX(-8px);
             box-shadow: 0 8px 25px rgba(139, 115, 85, 0.4);
         }
-
+        
         .style-btn.active {
             background: #8B7355;
             color: white;
@@ -250,7 +236,7 @@
             transform: translateX(-5px);
             box-shadow: 0 8px 25px rgba(139, 115, 85, 0.5);
         }
-
+        
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -262,7 +248,7 @@
                 transform: translateY(0);
             }
         }
-
+        
         @keyframes slideInUp {
             from {
                 opacity: 0;
@@ -273,7 +259,7 @@
                 transform: translateY(0);
             }
         }
-
+        
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -282,7 +268,194 @@
                 opacity: 1;
             }
         }
-
+        
+        /* Categories Section Styles */
+        .categories {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #f8f6f3 0%, #ebe6e0 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #8B7355;
+            margin-bottom: 1rem;
+        }
+        
+        .section-line {
+            width: 60px;
+            height: 3px;
+            background: #8B7355;
+            margin: 0 auto;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .category-image {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .category-card:hover .category-image img {
+            transform: scale(1.1);
+        }
+        
+        .category-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(139, 115, 85, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .category-card:hover .category-overlay {
+            opacity: 1;
+        }
+        
+        .category-cta {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .category-content {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #2c2c2c;
+            margin-bottom: 1rem;
+        }
+        
+        .category-description {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Brand Highlight Section */
+        .brand-highlight {
+            padding: 5rem 0;
+            background: white;
+        }
+        
+        .brand-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #8B7355;
+            margin-bottom: 2rem;
+        }
+        
+        .brand-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .brand-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(135deg, #8B7355, #A0956B);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .brand-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 115, 85, 0.3);
+        }
+        
+        .brand-image img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
+        /* Loading Skeleton */
+        .loading-skeleton {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .skeleton-card {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            height: 350px;
+            border-radius: 15px;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        
         /* Responsive Design */
         @media (max-width: 1024px) {
             .hero-style-selector {
@@ -293,41 +466,55 @@
                 margin-top: 2rem;
                 padding: 0 2rem;
             }
-
+            
             .hero-image {
                 background-attachment: scroll;
             }
+            
+            .brand-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
         }
-
+        
         @media (max-width: 768px) {
             .hero-style-selector {
                 gap: 0.8rem;
                 flex-wrap: wrap;
             }
-
+            
             .style-btn {
                 padding: 0.8rem 1.2rem;
                 font-size: 0.8rem;
                 min-width: 90px;
             }
-
+            
             .hero-content {
                 padding: 1.5rem;
             }
+            
+            .category-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .loading-skeleton {
+                grid-template-columns: 1fr;
+            }
         }
-
+        
         @media (max-width: 480px) {
             .hero-style-selector {
                 gap: 0.5rem;
             }
-
+            
             .style-btn {
                 padding: 0.6rem 1rem;
                 font-size: 0.75rem;
                 min-width: 80px;
             }
         }
-
+        
         /* Accessibility */
         @media (prefers-reduced-motion: reduce) {
             .hero-image {
@@ -342,10 +529,13 @@
         }
     </style>
 </head>
+
 <body class="light-theme">
-    <%-include("../../views/partials/user/header")%>
-    
-    <!-- ✅ Complete Hero Section -->
+<%- include("../partials/user/header") %>
+
+
+
+    <!-- Complete Hero Section -->
     <section class="hero dark-overlay" id="home">
         <!-- Style Variations Selector -->
         <div class="hero-style-selector">
@@ -357,8 +547,8 @@
         <!-- Hero Background -->
         <div class="hero-background">
             <div class="hero-image"></div>
-            <div class="hero-overlay dark-overlay"></div>
         </div>
+        <div class="hero-overlay dark-overlay"></div>
         
         <!-- Hero Content -->
         <div class="hero-content">
@@ -384,476 +574,13 @@
                 <div class="section-line"></div>
             </div>
             
-            <div class="category-grid">
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="Classic Suits" loading="lazy" />
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">Classic Suits</h3>
-                        <p class="category-description">Impeccably tailored suits crafted from premium fabrics for the discerning gentleman</p>
-                    </div>
-                </div>
-                
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=500&fit=crop&crop=center" alt="Polos & Shirts" loading="lazy" />
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">Polos & Shirts</h3>
-                        <p class="category-description">Premium cotton and linen essentials perfect for refined casual elegance</p>
-                    </div>
-                </div>
-                
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1506629905138-d3eec3dadcd8?w=400&h=500&fit=crop&crop=center" alt="Casual Wear" loading="lazy" />
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">Casual Wear</h3>
-                        <p class="category-description">Sophisticated leisure wear that maintains elegance in every setting</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- New Arrivals Section -->
-    <section class="products new-arrivals" id="shop">
-        <div class="container">
-            <div class="section-header-with-button">
-                <div class="section-header-left">
-                    <h2 class="section-title">New Arrivals</h2>
-                </div>
-                <button class="view-all-btn">View All</button>
-            </div>
-            
-            <div class="product-grid">
-                <!-- Row 1 -->
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300&h=400&fit=crop" alt="Navy Linen Blazer" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Navy Linen Blazer</h3>
-                        <div class="product-price">$485</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1506629905138-d3eec3dadcd8?w=300&h=400&fit=crop" alt="White Linen Shirt" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">White Linen Shirt</h3>
-                        <div class="product-price">$165</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=300&h=400&fit=crop" alt="Olive Cotton Polo" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Olive Cotton Polo</h3>
-                        <div class="product-price">$125</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&h=400&fit=crop" alt="Beige Linen Trousers" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Beige Linen Trousers</h3>
-                        <div class="product-price">$235</div>
-                    </div>
-                </div>
-                
-                <!-- Row 2 -->
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1618886614638-80e3c103d31a?w=300&h=400&fit=crop" alt="Leather Loafers" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Leather Loafers</h3>
-                        <div class="product-price">$315</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1564859228273-274232fdb516?w=300&h=400&fit=crop" alt="Cashmere V-Neck" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Cashmere V-Neck</h3>
-                        <div class="product-price">$285</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=300&h=400&fit=crop" alt="Chambray Shirt" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Chambray Shirt</h3>
-                        <div class="product-price">$145</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=300&h=400&fit=crop" alt="Suede Desert Boots" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Suede Desert Boots</h3>
-                        <div class="product-price">$265</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Best Sellers Section -->
-    <section class="products best-sellers">
-        <div class="container">
-            <div class="section-header-with-button">
-                <div class="section-header-left">
-                    <h2 class="section-title">Best Sellers</h2>
-                </div>
-                <button class="view-all-btn">View All</button>
-            </div>
-            
-            <div class="product-grid">
-                <!-- Row 1 -->
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=300&h=400&fit=crop" alt="Khaki Chinos" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Khaki Chinos</h3>
-                        <div class="product-price">$185</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop" alt="Merino Cardigan" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Merino Cardigan</h3>
-                        <div class="product-price">$225</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=400&fit=crop" alt="Oxford Shirt" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Oxford Shirt</h3>
-                        <div class="product-price">$155</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1618554912665-37c6a50acc52?w=300&h=400&fit=crop" alt="Wool Sweater" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Wool Sweater</h3>
-                        <div class="product-price">$195</div>
-                    </div>
-                </div>
-                
-                <!-- Row 2 -->
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1583743089695-4b816a340f82?w=300&h=400&fit=crop" alt="Canvas Sneakers" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Canvas Sneakers</h3>
-                        <div class="product-price">$135</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=300&h=400&fit=crop" alt="Cotton T-Shirt" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Cotton T-Shirt</h3>
-                        <div class="product-price">$85</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1549062572-544a64fb0c56?w=300&h=400&fit=crop" alt="Leather Belt" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Leather Belt</h3>
-                        <div class="product-price">$95</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop" alt="Cable Knit Vest" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Cable Knit Vest</h3>
-                        <div class="product-price">$175</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- You May Also Like Section -->
-    <section class="products you-may-like">
-        <div class="container">
-            <div class="section-header-with-button">
-                <div class="section-header-left">
-                    <h2 class="section-title">You May Also Like</h2>
-                </div>
-                <button class="view-all-btn">View All</button>
-            </div>
-            
-            <div class="product-grid">
-                <!-- Row 1 -->
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=300&h=400&fit=crop" alt="Linen Scarf" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Linen Scarf</h3>
-                        <div class="product-price">$75</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1603252109303-2751441dd157?w=300&h=400&fit=crop" alt="Tweed Jacket" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Tweed Jacket</h3>
-                        <div class="product-price">$445</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=300&h=400&fit=crop" alt="Silk Tie" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Silk Tie</h3>
-                        <div class="product-price">$65</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=300&h=400&fit=crop" alt="Wool Coat" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Wool Coat</h3>
-                        <div class="product-price">$565</div>
-                    </div>
-                </div>
-                
-                <!-- Row 2 -->
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=300&h=400&fit=crop" alt="Dress Shirt" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Dress Shirt</h3>
-                        <div class="product-price">$135</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1594938337357-0b8d4d2c3e3d?w=300&h=400&fit=crop" alt="Pocket Square" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Pocket Square</h3>
-                        <div class="product-price">$45</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=300&h=400&fit=crop" alt="Cashmere Coat" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Cashmere Coat</h3>
-                        <div class="product-price">$785</div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1594938374637-6014575c58eb?w=300&h=400&fit=crop" alt="Linen Shorts" class="product-image" loading="lazy" />
-                        <div class="product-actions">
-                            <button class="wishlist-btn" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Linen Shorts</h3>
-                        <div class="product-price">$115</div>
-                    </div>
+            <!-- Dynamic category loading with loading skeleton -->
+            <div class="category-grid" id="categoryGrid">
+                <!-- Loading skeleton -->
+                <div class="loading-skeleton">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
                 </div>
             </div>
         </div>
@@ -865,42 +592,20 @@
             <div class="brand-content">
                 <div class="brand-text">
                     <h2 class="brand-title">AURUM</h2>
-                    <p class="brand-description">
-                        Experience the epitome of refined menswear with AURUM's exclusive collection. 
-                        Each piece embodies timeless sophistication, crafted from the finest materials 
-                        and tailored to perfection. Discover clothing that transcends trends and defines true elegance.
-                    </p>
-                    <button class="brand-btn">
-                        <span>Shop Now</span>
+                    <p class="brand-description">Experience the epitome of refined menswear with AURUM's exclusive collection. Each piece embodies timeless sophistication, crafted from the finest materials and tailored to perfection. Discover clothing that transcends trends and defines true elegance.</p>
+                    <button class="brand-btn" onclick="scrollToSection('collection')">
+                        <span>Explore Collections</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
                 <div class="brand-image">
-                    <img src="https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=600&h=800&fit=crop" alt="AURUM Collection - Burgundy Sweater & Tailored Trousers" loading="lazy" />
+                    <img src="https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=600&h=800&fit=crop" alt="AURUM Collection" loading="lazy">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Newsletter Section -->
-    <section class="newsletter">
-        <div class="container">
-            <div class="newsletter-content">
-                <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
-                <p class="newsletter-description">
-                    Stay updated with the latest arrivals, exclusive offers, and style tips
-                </p>
-                <form class="newsletter-form" id="newsletter-form">
-                    <div class="input-group">
-                        <input type="email" class="email-input" placeholder="Enter your email address" required />
-                        <button type="submit" class="subscribe-btn">Subscribe</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- ✅ Complete JavaScript with All Functions -->
+    <!-- Complete JavaScript with All Functions -->
     <script>
         // Smooth scroll function
         function scrollToSection(sectionId) {
@@ -916,8 +621,9 @@
             }
         }
 
-        // ✅ FIXED: Style Switcher Functionality
+        // Style Switcher Functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Style switcher
             document.querySelectorAll('.style-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     // Remove active class from all buttons
@@ -941,93 +647,126 @@
                     heroSection.classList.add(style);
                     heroOverlay.classList.add(style);
                     
-                    console.log(`Style switched to: ${style}`); // Debug log
+                    console.log('Style switched to:', style); // Debug log
                 });
             });
+            
+            // Load categories from admin
+            loadCategories();
+        });
 
-            // Newsletter form
-            document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = this.querySelector('.email-input').value;
-                if (email) {
-                    alert(`Thank you for subscribing with: ${email}`);
-                    this.reset();
+        // Load categories from admin via Fetch API
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories/active', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.categories.length > 0) {
+                        renderCategories(data.categories);
+                    } else {
+                        renderDefaultCategories();
+                    }
+                } else {
+                    renderDefaultCategories();
+                }
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+                renderDefaultCategories();
+            }
+        }
+
+        function renderCategories(categories) {
+            const categoryGrid = document.getElementById('categoryGrid');
+            
+            categoryGrid.innerHTML = categories.slice(0, 3).map(category => `
+                <div class="category-card" onclick="exploreCategory('${category.categoryname}')">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="${category.categoryname}" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta">Explore</span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">${category.categoryname}</h3>
+                        <p class="category-description">${category.description}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDefaultCategories() {
+            const categoryGrid = document.getElementById('categoryGrid');
+            
+            categoryGrid.innerHTML = `
+                <div class="category-card" onclick="exploreCategory('Classic Suits')">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="Classic Suits" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta">Explore</span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Classic Suits</h3>
+                        <p class="category-description">Impeccably tailored suits crafted from premium fabrics for the discerning gentleman</p>
+                    </div>
+                </div>
+                <div class="category-card" onclick="exploreCategory('Polos & Shirts')">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=500&fit=crop&crop=center" alt="Polos & Shirts" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta">Explore</span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Polos & Shirts</h3>
+                        <p class="category-description">Premium cotton and linen essentials perfect for refined casual elegance</p>
+                    </div>
+                </div>
+                <div class="category-card" onclick="exploreCategory('Casual Wear')">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1506629905138-d3eec3dadcd8?w=400&h=500&fit=crop&crop=center" alt="Casual Wear" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta">Explore</span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Casual Wear</h3>
+                        <p class="category-description">Sophisticated leisure wear that maintains elegance in every setting</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Category exploration
+        function exploreCategory(categoryName) {
+            alert(`Exploring ${categoryName} category - this will navigate to category page when products are implemented.`);
+        }
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
                 }
             });
+        }, observerOptions);
 
-            // Wishlist buttons
-            document.querySelectorAll('.wishlist-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const icon = this.querySelector('i');
-                    const productTitle = this.closest('.product-card').querySelector('.product-title').textContent;
-                    
-                    if (icon.classList.contains('far')) {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        this.style.color = '#e74c3c';
-                        console.log(`Added ${productTitle} to wishlist`);
-                    } else {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                        this.style.color = '';
-                        console.log(`Removed ${productTitle} from wishlist`);
-                    }
-                });
-            });
-
-            // Product Quick View
-            document.querySelectorAll('.quick-view-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const productTitle = this.closest('.product-card').querySelector('.product-title').textContent;
-                    alert(`Quick view for: ${productTitle}\n\nProduct details would appear in a modal.`);
-                });
-            });
-
-            // View All Buttons
-            document.querySelectorAll('.view-all-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const sectionTitle = this.closest('.section-header-with-button')
-                                          .querySelector('.section-title').textContent;
-                    alert(`Viewing all ${sectionTitle}\n\nWould navigate to product listing page.`);
-                });
-            });
-
-            // Category cards
-            document.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const categoryTitle = this.querySelector('.category-title').textContent;
-                    alert(`Exploring ${categoryTitle} category\n\nWould navigate to category page.`);
-                });
-            });
-
-            // Brand button
-            document.querySelector('.brand-btn')?.addEventListener('click', function() {
-                scrollToSection('shop');
-            });
-
-            // Fade in animation on scroll
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            // Observe elements for fade-in animation
-            document.querySelectorAll('.category-card, .product-card').forEach(el => {
-                observer.observe(el);
-            });
+        // Observe elements for fade-in animation
+        document.querySelectorAll('.category-card').forEach(el => {
+            observer.observe(el);
         });
     </script>
-</body>
-</html> 
 
-<%-include("../../views/partials/user/footer")%>
+   <%- include("../partials/user/footer") %>
+
+</body>
+</html>

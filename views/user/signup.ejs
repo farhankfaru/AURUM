@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - AURUM</title>
-    <!-- Google Fonts and Font Awesome for icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -28,7 +27,6 @@
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
         }
 
-        /* Image Section - Old Money Style */
         .image-section {
             flex: 1;
             background: linear-gradient(135deg, #8B7355 0%, #A0956B 100%);
@@ -71,7 +69,6 @@
             color: #F5F5DC;
         }
 
-        /* Form Section */
         .form-section {
             flex: 1;
             display: flex;
@@ -104,7 +101,6 @@
             font-style: italic;
         }
 
-        /* Server Error Message - ADD THIS */
         .server-error {
             background: #fed7d7;
             border: 1px solid #e53e3e;
@@ -120,6 +116,40 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+        }
+
+        .api-message {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: slideInUp 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .api-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .api-message.success {
+            background: #c6f6d5;
+            border: 1px solid #38a169;
+            color: #22543d;
+        }
+
+        .api-message.error {
+            background: #fed7d7;
+            border: 1px solid #e53e3e;
+            color: #c53030;
         }
 
         .form-group { margin-bottom: 1.5rem; }
@@ -196,12 +226,43 @@
             transition: all 0.3s ease;
             margin-bottom: 1.5rem;
             letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .signup-btn:hover {
+        
+        .signup-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(139,115,85,0.3);
         }
-        .signup-btn:active { transform: translateY(0);}
+        
+        .signup-btn:active:not(:disabled) { 
+            transform: translateY(0);
+        }
+
+        .signup-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
         .divider {
             text-align: center;
@@ -238,6 +299,7 @@
             transition: all 0.3s ease;
             margin-bottom: 1.5rem;
             color: #8B7355;
+            text-decoration: none;
         }
         .google-btn:hover {
             border-color: #8B7355;
@@ -256,7 +318,35 @@
         }
         .login-link a:hover { color: #6B5B47; text-decoration: underline; }
 
-        /* Animations */
+        .home-link {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            background: rgba(139, 115, 85, 0.9);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-link:hover {
+            background: rgba(107, 91, 71, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .home-link i {
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
+        }
+
         @keyframes slideInUp {
             from { opacity: 0; transform: translateY(30px);}
             to { opacity: 1; transform: translateY(0);}
@@ -265,6 +355,7 @@
             from { opacity: 0; transform: translateX(50px);}
             to { opacity: 1; transform: translateX(0);}
         }
+        
         @media (max-width: 768px) {
             .container { flex-direction: column;}
             .image-section { min-height: 30vh; flex: none;}
@@ -272,18 +363,41 @@
             .brand-info p { font-size: 1.1rem;}
             .form-section { padding: 1.5rem;}
             .form-header h2 { font-size: 1.8rem;}
+            
+            .home-link {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
         }
+        
         @media (max-width: 480px) {
             .form-section { padding: 1rem;}
             .input-container input { padding: 0.875rem 0.875rem 0.875rem 2.5rem;}
             .input-icon {left: 0.875rem;}
             .toggle-password { right: 0.875rem;}
+            
+            .home-link {
+                top: 0.8rem;
+                left: 0.8rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+            
+            .home-link i {
+                margin-right: 0.3rem;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
 <body>
+    <a href="/" class="home-link">
+        <i class="fas fa-home"></i> Home
+    </a>
+
     <div class="container">
-        <!-- Left Side - Image Section -->
         <div class="image-section">
             <div class="overlay">
                 <div class="brand-info">
@@ -292,7 +406,6 @@
                 </div>
             </div>
         </div>
-        <!-- Right Side - Form Section -->
         <div class="form-section">
             <div class="form-container">
                 <div class="form-header">
@@ -300,7 +413,6 @@
                     <p>Create your account and discover our exclusive collection of classic fashion</p>
                 </div>
 
-                <!-- Server Error Message - ADD THIS SECTION -->
                 <% if (typeof message !== 'undefined' && message) { %>
                     <div class="server-error">
                         <i class="fas fa-exclamation-circle"></i>
@@ -308,7 +420,9 @@
                     </div>
                 <% } %>
 
-                <form id="signupForm" class="signup-form" action="/signup" method="POST">
+                <div id="apiMessage" class="api-message"></div>
+
+                <form id="signupForm" class="signup-form">
                     <div class="form-group">
                         <div class="input-container">
                             <i class="fas fa-user input-icon"></i>
@@ -346,12 +460,15 @@
                             <span class="error-message" id="confirmPasswordError"></span>
                         </div>
                     </div>
-                    <button type="submit" class="signup-btn">Create Account</button>
+                    <button type="submit" class="signup-btn" id="signupBtn">
+                        <div class="btn-loading" id="btnLoading"></div>
+                        <span id="btnText">Create Account</span>
+                    </button>
                 </form>
 
                 <div class="divider"><span>or</span></div>
 
-                <a href="/auth/google" class="google-btn" id="googleSignup">
+                <a href="/auth/google/signup" class="google-btn" id="googleSignup">
                     <i class="fab fa-google google-icon"></i>
                     <span>Continue with Google</span>
                 </a>
@@ -381,8 +498,14 @@
             };
             const togglePassword = document.getElementById('togglePassword');
             const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            const signupBtn = document.getElementById('signupBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            const apiMessage = document.getElementById('apiMessage');
 
-            // Restrict phone input to numbers only
+            let isSubmitting = false;
+
+            // Phone number input validation - only allow numbers
             inputs.phone.addEventListener('input', function(e) {
                 this.value = this.value.replace(/[^0-9]/g, '');
                 if (this.value.length > 10) {
@@ -391,6 +514,7 @@
                 validateField('phone');
             });
 
+            // Password visibility toggle functions
             function togglePasswordVisibility(inputId, toggleIcon) {
                 const input = document.getElementById(inputId);
                 if (input.type === 'password') {
@@ -411,28 +535,105 @@
                 togglePasswordVisibility('confirmPassword', this);
             });
 
+            // Input event listeners for real-time validation
             Object.keys(inputs).forEach(key => {
                 inputs[key].addEventListener('blur', () => validateField(key));
                 if (key !== 'phone') {
                     inputs[key].addEventListener('input', () => clearError(key));
                 }
                 
-                // Clear server error when user starts typing - ADD THIS
                 inputs[key].addEventListener('input', function() {
                     const serverError = document.querySelector('.server-error');
                     if (serverError) {
                         serverError.style.display = 'none';
                     }
+                    hideApiMessage();
                 });
             });   
 
-            // Only prevent form submission if validation fails
-            form.addEventListener('submit', function(e) {
-                if (!validateForm()) {
-                    e.preventDefault();
+            // FIXED: Form submission with proper redirectUrl handling
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (isSubmitting || !validateForm()) return;
+                
+                setLoadingState(true);
+                hideApiMessage();
+                
+                try {
+                    const formData = new FormData(form);
+                    const data = {
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone'),
+                        password: formData.get('password'),
+                        confirmPassword: formData.get('confirmPassword')
+                    };
+                    
+                    const response = await fetch('/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showApiMessage(result.message || 'Registration successful! Please verify your email.', 'success');
+                        
+                        // FIXED: Use the redirectUrl from backend response
+                        setTimeout(() => {
+                            window.location.href = result.redirectUrl || '/verify-otp';
+                        }, 1500);
+                    } else {
+                        showApiMessage(result.message || 'Registration failed. Please try again.', 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    showApiMessage('Network error. Please check your connection and try again.', 'error');
+                } finally {
+                    setLoadingState(false);
                 }
             });
 
+            function setLoadingState(loading) {
+                isSubmitting = loading;
+                signupBtn.disabled = loading;
+                
+                if (loading) {
+                    btnText.style.display = 'none';
+                    btnLoading.style.display = 'inline-block';
+                } else {
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
+                }
+            }
+
+            function showApiMessage(message, type) {
+                apiMessage.innerHTML = `
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    ${message}
+                `;
+                apiMessage.className = `api-message ${type} show`;
+                
+                if (type === 'success') {
+                    setTimeout(hideApiMessage, 5000);
+                }
+            }
+
+            function hideApiMessage() {
+                apiMessage.classList.remove('show');
+                setTimeout(() => {
+                    apiMessage.className = 'api-message';
+                    apiMessage.innerHTML = '';
+                }, 300);
+            }
+
+            // Enhanced phone number validation function
             function validatePhoneNumber(phoneNumber) {
                 const cleanPhone = phoneNumber.replace(/[\s\-\(\)]/g, '');
                 
@@ -582,11 +783,15 @@
                 showError(fieldName, '', false);
             }
 
-            // Update the login button link
-            document.getElementById('loginBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                window.location.href = '/login'; // Fixed: Actually go to login page
-            });
+            // Auto-hide server errors after 5 seconds
+            const serverError = document.querySelector('.server-error');
+            if (serverError) {
+                setTimeout(() => {
+                    serverError.style.opacity = '0';
+                    serverError.style.transform = 'translateY(-20px)';
+                    setTimeout(() => serverError.remove(), 300);
+                }, 5000);
+            }
         });
     </script>
 </body>
