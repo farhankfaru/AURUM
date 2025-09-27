@@ -6,15 +6,15 @@ const isDev = process.env.NODE_ENV !== 'production';
 const getAllCategories = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 100; // Default to 100 to get all categories
+        const limit = parseInt(req.query.limit) || 100;
         const search = req.query.search || '';
         const status = req.query.status || 'all';
         const offerStatus = req.query.offerStatus || 'all';
         const sortBy = req.query.sortBy || 'createdAt';
         const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
 
-        // Build search query for non-deleted categories only
-        let searchQuery = { isDeleted: false };
+        // Build search query for ALL categories (removed isDeleted filter)
+        let searchQuery = {};
         
         if (search) {
             searchQuery.$or = [
@@ -58,13 +58,12 @@ const getAllCategories = async (req, res) => {
         const totalCategories = await Category.countDocuments(searchQuery);
         const totalPages = Math.ceil(totalCategories / limit);
 
-        // Get category statistics
+        // Get category statistics (simplified)
         const stats = {
-            total: await Category.countDocuments({ isDeleted: false }),
-            listed: await Category.countDocuments({ isDeleted: false, islisted: true }),
-            unlisted: await Category.countDocuments({ isDeleted: false, islisted: false }),
-            withOffers: await Category.countDocuments({ isDeleted: false, categoryoffer: { $gt: 0 } }),
-            deleted: await Category.countDocuments({ isDeleted: true })
+            total: await Category.countDocuments({}),
+            listed: await Category.countDocuments({ islisted: true }),
+            unlisted: await Category.countDocuments({ islisted: false }),
+            withOffers: await Category.countDocuments({ categoryoffer: { $gt: 0 } })
         };
 
         console.log(`=== CATEGORY CONTROLLER ===`);
@@ -107,11 +106,10 @@ const getAllCategories = async (req, res) => {
 const getCategoryStats = async (req, res) => {
     try {
         const stats = {
-            total: await Category.countDocuments({ isDeleted: false }),
-            listed: await Category.countDocuments({ isDeleted: false, islisted: true }),
-            unlisted: await Category.countDocuments({ isDeleted: false, islisted: false }),
-            withOffers: await Category.countDocuments({ isDeleted: false, categoryoffer: { $gt: 0 } }),
-            deleted: await Category.countDocuments({ isDeleted: true })
+            total: await Category.countDocuments({}),
+            listed: await Category.countDocuments({ islisted: true }),
+            unlisted: await Category.countDocuments({ islisted: false }),
+            withOffers: await Category.countDocuments({ categoryoffer: { $gt: 0 } })
         };
 
         res.status(200).json({
@@ -161,8 +159,7 @@ const createCategory = async (req, res) => {
 
         // Check if category with same name exists (case-insensitive)
         const existingCategory = await Category.findOne({
-            categoryname: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
-            isDeleted: false
+            categoryname: { $regex: new RegExp(`^${trimmedName}$`, 'i') }
         });
 
         if (existingCategory) {
@@ -228,10 +225,7 @@ const getCategoryById = async (req, res) => {
             });
         }
 
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        }).lean();
+        const category = await Category.findById(categoryId).lean();
 
         if (!category) {
             return res.status(404).json({
@@ -294,10 +288,7 @@ const updateCategory = async (req, res) => {
         }
 
         // Check if category exists
-        const existingCategory = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
+        const existingCategory = await Category.findById(categoryId);
 
         if (!existingCategory) {
             return res.status(404).json({
@@ -309,8 +300,7 @@ const updateCategory = async (req, res) => {
         // Check if another category with same name exists (excluding current)
         const duplicateCategory = await Category.findOne({
             _id: { $ne: categoryId },
-            categoryname: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
-            isDeleted: false
+            categoryname: { $regex: new RegExp(`^${trimmedName}$`, 'i') }
         });
 
         if (duplicateCategory) {
@@ -376,10 +366,7 @@ const toggleCategoryStatus = async (req, res) => {
             });
         }
 
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
+        const category = await Category.findById(categoryId);
 
         if (!category) {
             return res.status(404).json({
@@ -417,8 +404,8 @@ const toggleCategoryStatus = async (req, res) => {
     }
 };
 
-// Soft delete category (hide from users, keep in database)
-const softDeleteCategory = async (req, res) => {
+// HARD DELETE - Permanently remove from database (renamed from hardDeleteCategory)
+const deleteCategory = async (req, res) => {
     try {
         const categoryId = req.params.id;
 
@@ -429,11 +416,8 @@ const softDeleteCategory = async (req, res) => {
             });
         }
 
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
-
+        // Check if category exists
+        const category = await Category.findById(categoryId);
         if (!category) {
             return res.status(404).json({
                 success: false,
@@ -441,27 +425,28 @@ const softDeleteCategory = async (req, res) => {
             });
         }
 
-        // Soft delete the category
-        const deletedCategory = await Category.findByIdAndUpdate(
-            categoryId,
-            { 
-                isDeleted: true,
-                islisted: false, // Also unlist when deleting
-                updatedAt: new Date()
-            },
-            { new: true }
-        );
+        // TODO: Add check for products when product management is implemented
+        // const productCount = await Product.countDocuments({ categoryId: categoryId });
+        // if (productCount > 0) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: 'Cannot delete category with existing products'
+        //     });
+        // }
 
-        if (isDev) console.log('Category soft deleted:', deletedCategory.categoryname);
+        // PERMANENTLY DELETE from database
+        await Category.findByIdAndDelete(categoryId);
+
+        if (isDev) console.log('Category permanently deleted:', category.categoryname);
 
         res.status(200).json({
             success: true,
             message: 'Category deleted successfully',
-            data: deletedCategory
+            data: { deletedCategory: category.categoryname }
         });
 
     } catch (error) {
-        console.error('Soft delete category error:', error);
+        console.error('Delete category error:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting category'
@@ -519,10 +504,7 @@ const addOffer = async (req, res) => {
             });
         }
 
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
+        const category = await Category.findById(categoryId);
 
         if (!category) {
             return res.status(404).json({
@@ -616,10 +598,7 @@ const editOffer = async (req, res) => {
             });
         }
 
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
+        const category = await Category.findById(categoryId);
 
         if (!category) {
             return res.status(404).json({
@@ -675,10 +654,7 @@ const removeOffer = async (req, res) => {
             });
         }
 
-        const category = await Category.findOne({ 
-            _id: categoryId, 
-            isDeleted: false 
-        });
+        const category = await Category.findById(categoryId);
 
         if (!category) {
             return res.status(404).json({
@@ -729,7 +705,7 @@ module.exports = {
     getCategoryById,
     updateCategory,
     toggleCategoryStatus,
-    softDeleteCategory,
+    deleteCategory, // RENAMED FROM hardDeleteCategory TO deleteCategory
     addOffer,
     editOffer,
     removeOffer

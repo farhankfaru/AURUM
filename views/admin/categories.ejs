@@ -866,11 +866,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    let allCategories = []; // Store all categories from server
-    let currentCategories = []; // Currently displayed categories
-    let filteredCategories = []; // Filtered categories
+    let allCategories = [];
+    let currentCategories = [];
+    let filteredCategories = [];
     let currentPage = 1;
-    let categoriesPerPage = 3; // Show 3 categories per page
+    let categoriesPerPage = 3;
     let totalPages = 1;
     let currentEditingCategory = null;
     let currentOfferCategory = null;
@@ -888,13 +888,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal event listeners
     setupModalEventListeners();
 
-    // Load ALL categories function - without pagination limit
+    // Load ALL categories function
     async function loadAllCategories() {
         try {
             showLoading(true);
             
-            // Get ALL categories without limit
-            const response = await fetch('/admin/api/categories?limit=100'); // Get up to 100 categories
+            const response = await fetch('/admin/api/categories?limit=100');
             
             if (!response.ok) {
                 throw new Error('Failed to load categories');
@@ -909,7 +908,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 console.log('=== LOADED CATEGORIES ===');
                 console.log('Total categories loaded:', allCategories.length);
-                console.log('categoriesPerPage:', categoriesPerPage);
                 
                 updateStats(stats);
                 renderCategoriesTable();
@@ -988,9 +986,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const offerFilter = document.getElementById('offerFilter').value;
         
         filteredCategories = allCategories.filter(category => {
-            // Don't show soft-deleted categories
-            if (category.isDeleted) return false;
-            
             const matchesSearch = searchTerm === '' || 
                 (category.categoryname && category.categoryname.toLowerCase().includes(searchTerm)) ||
                 (category.description && category.description.toLowerCase().includes(searchTerm));
@@ -1016,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('searchInput').value = '';
         document.getElementById('statusFilter').value = 'all';
         document.getElementById('offerFilter').value = 'all';
-        filteredCategories = allCategories.filter(category => !category.isDeleted);
+        filteredCategories = [...allCategories];
         currentPage = 1;
         renderCategoriesTable();
         renderPagination();
@@ -1036,8 +1031,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('=== RENDER CATEGORIES TABLE ===');
         console.log('filteredCategories.length:', filteredCategories.length);
-        console.log('currentPage:', currentPage);
-        console.log('categoriesPerPage:', categoriesPerPage);
         
         if (filteredCategories.length === 0) {
             showEmptyState();
@@ -1048,8 +1041,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const startIndex = (currentPage - 1) * categoriesPerPage;
         const endIndex = startIndex + categoriesPerPage;
         const categoriesToShow = filteredCategories.slice(startIndex, endIndex);
-
-        console.log('startIndex:', startIndex, 'endIndex:', endIndex, 'categoriesToShow.length:', categoriesToShow.length);
 
         tbody.innerHTML = categoriesToShow.map(category => {
             const createdDate = category.createdAt ? 
@@ -1114,18 +1105,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const paginationInfo = document.getElementById('paginationInfo');
         const paginationControls = document.getElementById('paginationControls');
 
-        console.log('=== RENDER PAGINATION ===');
-        console.log('filteredCategories.length:', filteredCategories.length);
-        console.log('categoriesPerPage:', categoriesPerPage);
-        console.log('totalPages:', totalPages);
-        console.log('currentPage:', currentPage);
-
         if (filteredCategories.length === 0) {
             paginationContainer.style.display = 'none';
             return;
         }
 
-        // ALWAYS show pagination if there are categories
         paginationContainer.style.display = 'flex';
 
         // Update pagination info
@@ -1136,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Generate pagination controls
         let paginationHTML = '';
         
-        // Previous button - ALWAYS SHOW
+        // Previous button
         paginationHTML += `
             <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
                 <i class="fas fa-chevron-left"></i> Previous
@@ -1156,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Next button - ALWAYS SHOW
+        // Next button
         paginationHTML += `
             <button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
                 Next <i class="fas fa-chevron-right"></i>
@@ -1164,21 +1148,15 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         paginationControls.innerHTML = paginationHTML;
-        console.log('Pagination HTML generated, totalPages:', totalPages);
     }
 
     // Global functions for actions
     window.changePage = function(page) {
-        console.log('changePage called with page:', page);
-        
         if (page < 1 || page > totalPages) {
-            console.log('Invalid page number:', page);
             return;
         }
         
         currentPage = page;
-        console.log('currentPage set to:', currentPage);
-        
         renderCategoriesTable();
         renderPagination();
     };
@@ -1257,10 +1235,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // SINGLE DELETE FUNCTION - Permanently deletes from database
     window.deleteCategory = async function(categoryId, categoryName) {
         const confirmed = await showConfirmModal(
             'Delete Category',
-            `Are you sure you want to delete "${categoryName}"? This will hide it from users but keep it in the database.`,
+            `⚠️ WARNING: This will PERMANENTLY delete "${categoryName}" from the database. This action CANNOT be undone!\n\nAre you sure you want to delete this category?`,
             'danger'
         );
 
@@ -1269,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             showAlert('Deleting category...', 'warning', 2000);
             
-            const response = await fetch(`/admin/api/categories/${categoryId}/soft-delete`, {
+            const response = await fetch(`/admin/api/categories/${categoryId}/delete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1600,6 +1579,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-</main>
-</body>
-</html>
+

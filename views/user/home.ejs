@@ -378,6 +378,48 @@
         .category-description {
             color: #666;
             line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        /* Offer Badge Styles */
+        .offer-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: #ff6b35;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.5rem 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* No Categories Message */
+        .no-categories {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .no-categories h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #8B7355;
+            margin-bottom: 1rem;
+        }
+
+        .no-categories p {
+            color: #666;
+            font-size: 1.1rem;
         }
         
         /* Brand Highlight Section */
@@ -432,30 +474,6 @@
             border-radius: 15px;
         }
         
-        /* Loading Skeleton */
-        .loading-skeleton {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-        
-        .skeleton-card {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            height: 350px;
-            border-radius: 15px;
-        }
-        
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-            100% {
-                background-position: 200% 0;
-            }
-        }
-        
         /* Responsive Design */
         @media (max-width: 1024px) {
             .hero-style-selector {
@@ -497,10 +515,6 @@
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
-            
-            .loading-skeleton {
-                grid-template-columns: 1fr;
-            }
         }
         
         @media (max-width: 480px) {
@@ -533,8 +547,6 @@
 <body class="light-theme">
 <%- include("../partials/user/header") %>
 
-
-
     <!-- Complete Hero Section -->
     <section class="hero dark-overlay" id="home">
         <!-- Style Variations Selector -->
@@ -566,7 +578,7 @@
         </div>
     </section>
 
-    <!-- Categories Section -->
+    <!-- Categories Section with Server-Side Rendering -->
     <section class="categories" id="collection">
         <div class="container">
             <div class="section-header">
@@ -574,14 +586,33 @@
                 <div class="section-line"></div>
             </div>
             
-            <!-- Dynamic category loading with loading skeleton -->
-            <div class="category-grid" id="categoryGrid">
-                <!-- Loading skeleton -->
-                <div class="loading-skeleton">
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                </div>
+            <div class="category-grid">
+                <% if (categories && categories.length > 0) { %>
+                    <% categories.forEach(category => { %>
+                        <div class="category-card" onclick="exploreCategory('<%= category.categoryname %>', '<%= category._id %>')">
+                            <div class="category-image">
+                                <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="<%= category.categoryname %>" loading="lazy">
+                                <div class="category-overlay">
+                                    <span class="category-cta">Explore</span>
+                                </div>
+                            </div>
+                            <div class="category-content">
+                                <h3 class="category-title"><%= category.categoryname %></h3>
+                                <p class="category-description"><%= category.description %></p>
+                                <% if (category.categoryoffer > 0) { %>
+                                    <div class="offer-badge">
+                                        <%= category.discountType === 'percentage' ? category.categoryoffer + '% OFF' : '₹' + category.categoryoffer + ' OFF' %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="no-categories">
+                        <h3>No Categories Available</h3>
+                        <p>Categories will appear here once they are added by the admin.</p>
+                    </div>
+                <% } %>
             </div>
         </div>
     </section>
@@ -605,7 +636,7 @@
         </div>
     </section>
 
-    <!-- Complete JavaScript with All Functions -->
+    <!-- Clean JavaScript - No Fetch, Pure Client-Side -->
     <script>
         // Smooth scroll function
         function scrollToSection(sectionId) {
@@ -646,127 +677,21 @@
                     // Add new style class
                     heroSection.classList.add(style);
                     heroOverlay.classList.add(style);
-                    
-                    console.log('Style switched to:', style); // Debug log
                 });
             });
-            
-            // Load categories from admin
-            loadCategories();
         });
 
-        // Load categories from admin via Fetch API
-        async function loadCategories() {
-            try {
-                const response = await fetch('/api/categories/active', {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.categories.length > 0) {
-                        renderCategories(data.categories);
-                    } else {
-                        renderDefaultCategories();
-                    }
-                } else {
-                    renderDefaultCategories();
-                }
-            } catch (error) {
-                console.error('Failed to load categories:', error);
-                renderDefaultCategories();
-            }
-        }
-
-        function renderCategories(categories) {
-            const categoryGrid = document.getElementById('categoryGrid');
+        // Category exploration function
+        function exploreCategory(categoryName, categoryId) {
+            // For now, show alert - replace with actual navigation when products are ready
+            alert(`Exploring ${categoryName} category!\n\nCategory ID: ${categoryId}\n\nThis will navigate to products page when product management is implemented.`);
             
-            categoryGrid.innerHTML = categories.slice(0, 3).map(category => `
-                <div class="category-card" onclick="exploreCategory('${category.categoryname}')">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="${category.categoryname}" loading="lazy">
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">${category.categoryname}</h3>
-                        <p class="category-description">${category.description}</p>
-                    </div>
-                </div>
-            `).join('');
+            // Future implementation:
+            // window.location.href = `/products?category=${categoryId}`;
         }
-
-        function renderDefaultCategories() {
-            const categoryGrid = document.getElementById('categoryGrid');
-            
-            categoryGrid.innerHTML = `
-                <div class="category-card" onclick="exploreCategory('Classic Suits')">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop&crop=center" alt="Classic Suits" loading="lazy">
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">Classic Suits</h3>
-                        <p class="category-description">Impeccably tailored suits crafted from premium fabrics for the discerning gentleman</p>
-                    </div>
-                </div>
-                <div class="category-card" onclick="exploreCategory('Polos & Shirts')">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=500&fit=crop&crop=center" alt="Polos & Shirts" loading="lazy">
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">Polos & Shirts</h3>
-                        <p class="category-description">Premium cotton and linen essentials perfect for refined casual elegance</p>
-                    </div>
-                </div>
-                <div class="category-card" onclick="exploreCategory('Casual Wear')">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1506629905138-d3eec3dadcd8?w=400&h=500&fit=crop&crop=center" alt="Casual Wear" loading="lazy">
-                        <div class="category-overlay">
-                            <span class="category-cta">Explore</span>
-                        </div>
-                    </div>
-                    <div class="category-content">
-                        <h3 class="category-title">Casual Wear</h3>
-                        <p class="category-description">Sophisticated leisure wear that maintains elegance in every setting</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Category exploration
-        function exploreCategory(categoryName) {
-            alert(`Exploring ${categoryName} category - this will navigate to category page when products are implemented.`);
-        }
-
-        // Fade in animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
-                }
-            });
-        }, observerOptions);
-
-        // Observe elements for fade-in animation
-        document.querySelectorAll('.category-card').forEach(el => {
-            observer.observe(el);
-        });
     </script>
 
-   <%- include("../partials/user/footer") %>
+<%- include("../partials/user/footer") %>
 
 </body>
 </html>

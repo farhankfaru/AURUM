@@ -438,46 +438,35 @@ const loadLogin = async (req, res) => {
 const loadHomepage = async (req, res) => {
     try {
         let user = null;
-        
-        // Only query user if session exists
+
         if (req.session.user) {
-            try {
-                user = await User.findById(req.session.user).lean(); // .lean() for faster queries
-                
-                // Only check if user was found
-                if (user && user.isBlocked) {
-                    req.session.destroy();
-                    return res.redirect('/login?error=account_blocked');
-                }
-                
-                // If user deleted, clean up silently
-                if (!user) {
-                    req.session.destroy();
-                    res.clearCookie('connect.sid');
-                }
-            } catch (dbError) {
-                console.error("Database error:", dbError);
-                // Don't block the homepage, just clean session
+            user = await User.findById(req.session.user).lean();
+
+            // If user blocked or deleted, clean session and redirect
+            if (user && user.isBlocked) {
+                req.session.destroy();
+                return res.redirect('/login?error=account_blocked');
+            }
+            if (!user) {
                 req.session.destroy();
                 res.clearCookie('connect.sid');
-                user = null;
             }
         }
-        
-        // Get categories (with lean for performance)
-        const categories = await Category.find({ 
-            islisted: true, 
-            isDeleted: false 
-        }).lean().sort({ createdAt: -1 });
-        
-        res.render('user/home', { user, categories });
-        
+
+        // Fetch all listed and non-deleted categories
+        const categories = await Category.find({ islisted: true,  isDeleted: false }).lean().sort({ createdAt: -1 });
+
+        // Render home view with user and categories data
+        res.render('user/home', {
+    user,
+    categories
+});
+
     } catch (error) {
-        console.log("Home page error:", error);
-        res.status(500).send("Server Error");
+        console.error('Error loading homepage', error);
+        res.status(500).send('Server Error');
     }
 };
-
 
 
 // UPDATED LOGIN FUNCTION WITH BLOCKED USER PREVENTION
