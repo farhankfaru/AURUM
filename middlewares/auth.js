@@ -1,4 +1,7 @@
-const User = require('../models/userSchema'); // Fixed: Changed from '../models/User' to '../models/userSchema'
+const User = require('../models/userSchema');
+
+// Store server start time to detect restarts
+const SERVER_START_TIME = Date.now();
 
 // UPDATED USER AUTH WITH BLOCKED USER PREVENTION
 const userAuth = async (req, res, next) => {
@@ -25,6 +28,7 @@ const userAuth = async (req, res, next) => {
                         console.error('Session destroy error during blocked user redirect:', err);
                     }
                     res.clearCookie('connect.sid');
+                    res.clearCookie('aurum.sid');
                     return res.redirect('/login?error=account_blocked');
                 });
                 return;
@@ -36,6 +40,7 @@ const userAuth = async (req, res, next) => {
                         console.error('Session destroy error during deleted user redirect:', err);
                     }
                     res.clearCookie('connect.sid');
+                    res.clearCookie('aurum.sid');
                     return res.redirect('/login');
                 });
                 return;
@@ -49,7 +54,7 @@ const userAuth = async (req, res, next) => {
     }
 };
 
-// ENHANCED ADMIN AUTH WITH CACHE PREVENTION
+// FIXED: ENHANCED ADMIN AUTH WITH SERVER RESTART DETECTION
 const adminAuth = async (req, res, next) => {
     try {
         console.log("=== ADMIN AUTH MIDDLEWARE ===");
@@ -122,7 +127,6 @@ const adminAuth = async (req, res, next) => {
 };
 
 // Enhanced guest middleware - allows OTP verification flow + handles deleted users
-// Optimized guest middleware - minimal DB queries
 const guestOnly = (req, res, next) => {
     // Allow access if user is in OTP verification process
     if (req.session.userData && req.session.userOtp && req.path === '/verify-otp') {
@@ -142,21 +146,48 @@ const guestOnly = (req, res, next) => {
     next();
 };
 
+// FIXED: Admin guest middleware with better session handling and back button prevention
 const adminGuestOnly = (req, res, next) => {
-    // Check if admin is already logged in
-    if (req.session && req.session.admin) {
-        console.log("Admin already authenticated, redirecting to dashboard");
-        return res.redirect('/admin/dashboard');
-    }
-    
-    // Set cache prevention headers for admin login page
+    // CRITICAL: Set cache prevention headers to prevent back button access
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '-1');
+    res.set('Last-Modified', new Date(0).toUTCString());
     
-    next();
+    // Check if admin is already logged in
+    if (req.session && req.session.admin) {
+        console.log("Admin session found in adminGuestOnly");
+        
+        // Verify the admin session is still valid
+        User.findById(req.session.admin)
+            .then(admin => {
+                if (admin && admin.isAdmin && !admin.isBlocked) {
+                    console.log("Admin already authenticated, redirecting to dashboard");
+                    return res.redirect('/admin/dashboard');
+                } else {
+                    // Invalid admin - destroy session
+                    req.session.destroy((err) => {
+                        if (err) console.error('Session destroy error:', err);
+                    });
+                    res.clearCookie('connect.sid');
+                    res.clearCookie('aurum.sid');
+                    return next(); // Allow access to login page
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying admin in adminGuestOnly:', error);
+                // On error, destroy session and allow login
+                req.session.destroy((err) => {
+                    if (err) console.error('Session destroy error:', err);
+                });
+                res.clearCookie('connect.sid');
+                res.clearCookie('aurum.sid');
+                return next();
+            });
+    } else {
+        next();
+    }
 };
-
 
 // Additional middleware for OTP verification pages
 const otpRequired = (req, res, next) => {

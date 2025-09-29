@@ -435,41 +435,123 @@
     </div>
 
     <script>
-        // PREVENT BROWSER CACHE AND HANDLE SESSION VALIDATION
+        // ENHANCED CACHE PREVENTION AND SESSION VALIDATION - COMPLETE FIX
         (function() {
-            // Clear browser cache on login page load
+            console.log('🔒 Admin Login: Initializing security measures...');
+            
+            // CRITICAL: Clear ALL types of browser cache
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, null, window.location.href);
             }
             
-            // Handle back button and prevent caching
+            // Advanced cache prevention
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+            
+            // Clear localStorage and sessionStorage
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch(e) {
+                console.log('Storage clear attempt:', e);
+            }
+            
+            // Clear cache storage
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    names.forEach(function(name) {
+                        caches.delete(name);
+                        console.log('🧹 Cleared cache:', name);
+                    });
+                });
+            }
+            
+            // ENHANCED: Handle page show events (including back/forward)
             window.addEventListener('pageshow', function(event) {
-                if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-                    // Page came from cache, reload it
+                console.log('📄 Page show event:', {
+                    persisted: event.persisted,
+                    navigationType: window.performance?.navigation?.type
+                });
+                
+                // If page came from cache, force reload
+                if (event.persisted || 
+                    (window.performance && window.performance.navigation.type === 2)) {
+                    console.log('🔄 Page from cache detected, forcing reload...');
                     window.location.reload(true);
+                    return;
                 }
             });
             
-            // Prevent going back to admin pages after logout
-            if (document.referrer && document.referrer.includes('/admin/') && 
-                !document.referrer.includes('/admin/login')) {
+            // CRITICAL: Enhanced referrer check for admin pages
+            const referrer = document.referrer;
+            console.log('🔍 Referrer check:', referrer);
+            
+            if (referrer && referrer.includes('/admin/') && 
+                !referrer.includes('/admin/login') && 
+                !referrer.includes('logout')) {
                 
-                // Force reload and clear cache
+                console.log('⚠️ Detected navigation from admin page, clearing everything...');
+                
+                // Force complete page replacement
                 window.location.replace(window.location.href);
                 
-                // Clear cache storage if available
-                if ('caches' in window) {
-                    caches.keys().then(names => {
-                        names.forEach(name => caches.delete(name));
-                    });
+                // Additional cleanup
+                setTimeout(() => {
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => caches.delete(name));
+                        });
+                    }
+                }, 100);
+            }
+            
+            // ENHANCED: Disable back button completely on login page
+            let backButtonDisabled = false;
+            
+            function disableBackButton() {
+                if (!backButtonDisabled) {
+                    window.history.pushState(null, null, window.location.href);
+                    backButtonDisabled = true;
+                    console.log('🚫 Back button disabled');
                 }
             }
             
-            // Disable back button functionality on login page
-            window.history.pushState(null, null, window.location.href);
+            disableBackButton();
+            
             window.addEventListener('popstate', function(event) {
-                window.history.pushState(null, null, window.location.href);
+                console.log('⬅️ Back button attempted, preventing...');
+                disableBackButton();
+                
+                // Additional prevention
+                if (window.history.state !== 'admin-login-locked') {
+                    window.history.pushState('admin-login-locked', null, window.location.href);
+                }
             });
+            
+            // Set initial history state
+            setTimeout(() => {
+                if (window.history.state !== 'admin-login-locked') {
+                    window.history.pushState('admin-login-locked', null, window.location.href);
+                }
+            }, 100);
+            
+            // ENHANCED: Prevent any form of navigation away
+            window.addEventListener('beforeunload', function(e) {
+                // This will prompt user before leaving if they try to navigate away
+                // But won't trigger for programmatic redirects after successful login
+                if (!window.adminLoginSuccessful) {
+                    const message = 'Are you sure you want to leave?';
+                    e.returnValue = message;
+                    return message;
+                }
+            });
+            
+            console.log('✅ Admin Login: Security measures initialized');
         })();
 
         // Password toggle functionality
@@ -528,7 +610,7 @@
             }
         }
 
-        // Admin login form submission with fetch API
+        // ENHANCED: Admin login form submission with better error handling
         document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -537,6 +619,8 @@
             const loginBtn = document.getElementById('loginBtn');
             const btnText = document.getElementById('btnText');
             const btnLoading = document.getElementById('btnLoading');
+
+            console.log('🚀 Starting admin login process...');
 
             // Reset field errors
             showFieldError('adminEmail', false);
@@ -562,7 +646,10 @@
                 hasError = true;
             }
 
-            if (hasError) return;
+            if (hasError) {
+                console.log('❌ Client-side validation failed');
+                return;
+            }
 
             // Show loading state
             loginBtn.disabled = true;
@@ -570,29 +657,49 @@
             btnLoading.style.display = 'block';
 
             try {
+                console.log('📡 Sending login request...');
+                
                 const response = await fetch('/admin/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
                     },
                     body: JSON.stringify({
                         email: email,
                         password: password
-                    })
+                    }),
+                    cache: 'no-store'
                 });
 
+                console.log('📨 Response status:', response.status);
+
                 const data = await response.json();
+                console.log('📦 Response data:', data);
 
                 if (response.ok && data.success) {
                     // Success
+                    console.log('✅ Login successful!');
+                    window.adminLoginSuccessful = true; // Disable beforeunload warning
+                    
                     showApiMessage('Login successful! Redirecting to admin panel...', 'success');
                     
+                    // Clear any remaining cache before redirect
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => caches.delete(name));
+                        });
+                    }
+                    
                     setTimeout(() => {
+                        console.log('🔄 Redirecting to:', data.redirectUrl || '/admin/dashboard');
                         window.location.href = data.redirectUrl || '/admin/dashboard';
                     }, 1500);
                 } else {
                     // Error from server
+                    console.log('❌ Login failed:', data.message);
                     showApiMessage(data.message || 'Login failed. Please check your credentials.', 'error');
                     
                     // Show field errors based on response
@@ -602,13 +709,14 @@
                     }
                 }
             } catch (error) {
-                console.error('Admin login error:', error);
+                console.error('💥 Admin login error:', error);
                 showApiMessage('Network error. Please check your connection and try again.', 'error');
             } finally {
                 // Reset button state
                 loginBtn.disabled = false;
                 btnText.style.display = 'block';
                 btnLoading.style.display = 'none';
+                console.log('🔄 Login attempt completed');
             }
         });
 
@@ -618,6 +726,35 @@
                 showFieldError(this.id, false);
             });
         });
+
+        // ENHANCED: Additional security measures
+        document.addEventListener('keydown', function(e) {
+            // Disable F5 (refresh) and Ctrl+R
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                console.log('🚫 Refresh prevented');
+                return false;
+            }
+            
+            // Disable Ctrl+Shift+I (Developer Tools)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable F12 (Developer Tools)
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Right-click context menu disable (optional security)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        console.log('🛡️ Admin Login Page: All security measures active');
     </script>
 </body>
 </html>

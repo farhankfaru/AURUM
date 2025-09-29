@@ -1,5 +1,5 @@
-const mongoose =require("mongoose")
-const {Schema}=mongoose
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const productSchema = new Schema(
   {
@@ -10,7 +10,7 @@ const productSchema = new Schema(
     },
     description: {
       type: String,
-      required:true
+      required: true
     },
     category: {
       type: Schema.Types.ObjectId,
@@ -20,10 +20,17 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
-   productname: {
+    offerType: {
+      type: String,
+      enum: ["percentage", "fixed"],
+      default: "percentage"
+    },
+    productname: {
       type: String,
       required: true,
       trim: true,
+      unique: true, // Add unique constraint
+      index: true   // Add index for better performance
     },
     productID: {
       type: Schema.Types.ObjectId,
@@ -34,8 +41,8 @@ const productSchema = new Schema(
       required: true,
     },
     image: {
-        type:[String],
-        required:true
+      type: [String],
+      required: true
     },
     appliedoffer: {
       type: Number,
@@ -44,11 +51,13 @@ const productSchema = new Schema(
     variants: [
       {
         quantity: { type: Number, default: 0 },
-        size: { type: String,
-          required:true
-         },
-        sku: { type: String ,
-          required:true
+        size: { 
+          type: String,
+          required: true
+        },
+        sku: { 
+          type: String,
+          required: true
         },
       },
     ],
@@ -63,6 +72,26 @@ const productSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Create compound index for product name (case-insensitive)
+productSchema.index({ productname: 1 }, { unique: true });
+
+// Pre-save middleware to prevent duplicate product names (case-insensitive)
+productSchema.pre('save', async function(next) {
+  if (this.isNew || this.isModified('productname')) {
+    const existingProduct = await this.constructor.findOne({
+      productname: { $regex: new RegExp(`^${this.productname}$`, 'i') },
+      _id: { $ne: this._id }
+    });
+    
+    if (existingProduct) {
+      const error = new Error('Product name already exists');
+      error.code = 11000; // Duplicate key error code
+      return next(error);
+    }
+  }
+  next();
+});
 
 const Product = mongoose.model("Product", productSchema);
 

@@ -1,8 +1,10 @@
 const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema");
 const bcrypt = require("bcrypt");
 
 const isDev = process.env.NODE_ENV !== 'production';
+
 const loadLogin = async (req, res) => {
     try {
         // CHECK IF ADMIN IS ALREADY LOGGED IN
@@ -31,6 +33,7 @@ const loadLogin = async (req, res) => {
     }
 };
 
+// FIXED: Login function with loginTime tracking
 const login = async (req, res) => {
     try {
         console.log("Admin login attempt for:", req.body.email);
@@ -76,7 +79,12 @@ const login = async (req, res) => {
         }
         
         console.log("Setting session for admin:", findAdmin._id);
+        
+        // CRITICAL: Set both admin ID and login time
         req.session.admin = findAdmin._id.toString();
+        req.session.loginTime = Date.now(); // ADDED: Track when login occurred
+        
+        console.log("✅ Admin session created with loginTime:", req.session.loginTime);
         
         return res.status(200).json({
             success: true,
@@ -177,6 +185,91 @@ const loadCategories = async (req, res) => {
     }
 };
 
+const loadProducts = async (req, res) => {
+    try {
+        if (!req.session.admin) {
+            return res.redirect('/admin/login');
+        }
+
+        const admin = await User.findById(req.session.admin);
+        if (!admin || !admin.isAdmin) {
+            req.session.destroy();
+            return res.redirect('/admin/login');
+        }
+
+        res.render('admin/products', {
+            admin: admin,
+            title: 'Product Management - AURUM Admin',
+            pageTitle: 'Product Management',
+            currentPage: 'products'
+        });
+    } catch (error) {
+        if (isDev) console.error('Product management loading error:', error);
+        return res.status(500).render('admin/admin-error');
+    }
+};
+
+const loadAddProducts = async (req, res) => {
+    try {
+        if (!req.session.admin) {
+            return res.redirect('/admin/login');
+        }
+
+        const admin = await User.findById(req.session.admin);
+        if (!admin || !admin.isAdmin) {
+            req.session.destroy();
+            return res.redirect('/admin/login');
+        }
+
+        res.render('admin/add-product', {
+            admin: admin,
+            title: 'Add Product - AURUM Admin',
+            pageTitle: 'Add Product',
+            currentPage: 'add-products'
+        });
+    } catch (error) {
+        if (isDev) console.error('Add product loading error:', error);
+        return res.status(500).render('admin/admin-error');
+    }
+};
+
+const loadEditProducts = async (req, res) => {
+    try {
+        if (!req.session.admin) {
+            return res.redirect('/admin/login');
+        }
+
+        const admin = await User.findById(req.session.admin);
+        if (!admin || !admin.isAdmin) {
+            req.session.destroy();
+            return res.redirect('/admin/login');
+        }
+
+        const productId = req.params.id;
+        const product = await Product.findById(productId).populate('category');
+        
+        if (!product) {
+            return res.status(404).render('admin/admin-error', {
+                admin: admin,
+                title: 'Product Not Found - AURUM Admin',
+                pageTitle: 'Error',
+                message: 'Product not found'
+            });
+        }
+
+        res.render('admin/edit-product', {
+            admin: admin,
+            product: product,
+            title: 'Edit Product - AURUM Admin',
+            pageTitle: 'Edit Product',
+            currentPage: 'products'
+        });
+    } catch (error) {
+        if (isDev) console.error('Edit product loading error:', error);
+        return res.status(500).render('admin/admin-error');
+    }
+};
+
 const pageerror = async (req, res) => {
     try {
         if (!req.session.admin) {
@@ -248,6 +341,9 @@ module.exports = {
     loadDashboard,
     loadCustomers,
     loadCategories,
+    loadProducts,
+    loadAddProducts,
+    loadEditProducts,
     pageerror,
     logout
 };

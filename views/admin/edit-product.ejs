@@ -1,0 +1,742 @@
+<%- include('../partials/admin/header', { 
+    title: 'Edit Product - AURUM Admin',
+    pageTitle: 'Edit Product',
+    currentPage: 'products'
+}) %>
+
+<style>
+    /* Edit Product Specific Styles - Same as add-product but with modifications */
+    .edit-product-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* All the same styles as add-product.ejs - just copy the entire style section from add-product.ejs */
+    /* Alert System */
+    .alert-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 10001;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border-left: 5px solid;
+        animation: slideInRight 0.3s ease;
+        position: relative;
+    }
+
+    .alert.show { display: block; }
+    .alert.success { background: #d1fae5; color: #065f46; border-left-color: #10b981; }
+    .alert.error { background: #fee2e2; color: #991b1b; border-left-color: #ef4444; }
+    .alert.warning { background: #fef3c7; color: #92400e; border-left-color: #f59e0b; }
+
+    .alert-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+    }
+
+    .alert-close:hover { opacity: 1; }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(100%); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Header Section */
+    .edit-product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .edit-product-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        letter-spacing: 0.5px;
+    }
+
+    .back-btn {
+        background: #6b7280;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .back-btn:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+
+    /* Copy all other styles from add-product.ejs exactly */
+    .product-form-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    .form-header { background: var(--aurum-gold); color: white; padding: 1.5rem 2rem; font-size: 1.1rem; font-weight: 600; }
+    .form-content { padding: 2rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+    .form-section { display: flex; flex-direction: column; }
+    .form-section.full-width { grid-column: 1 / -1; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-text); font-size: 0.9rem; }
+    .form-group.required label::after { content: "*"; color: #dc2626; margin-left: 0.25rem; }
+    .form-input { width: 100%; padding: 0.8rem 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; transition: all 0.3s ease; background: white; }
+    .form-input:focus { outline: none; border-color: var(--aurum-gold); box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1); }
+    .form-input.error { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+    .form-textarea { min-height: 120px; resize: vertical; font-family: inherit; }
+    .form-select { width: 100%; padding: 0.8rem 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; background: white; transition: all 0.3s ease; }
+    .form-select:focus { outline: none; border-color: var(--aurum-gold); box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1); }
+    .price-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .variants-section { border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; background: #fafafa; }
+    .variants-header { font-weight: 600; color: var(--dark-text); margin-bottom: 1rem; font-size: 1rem; }
+    .size-variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .size-variant { background: white; border: 2px solid var(--border-color); border-radius: 8px; padding: 1rem; transition: all 0.3s ease; }
+    .size-variant:hover { border-color: var(--aurum-gold); }
+    .size-variant.selected { border-color: var(--aurum-gold); background: rgba(139, 115, 85, 0.05); }
+    .size-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .size-checkbox { width: 18px; height: 18px; accent-color: var(--aurum-gold); }
+    .size-label { font-weight: 600; color: var(--dark-text); font-size: 0.9rem; text-transform: uppercase; }
+    .quantity-input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.85rem; text-align: center; font-weight: 500; }
+    .quantity-input:focus { outline: none; border-color: var(--aurum-gold); }
+    .quantity-input:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
+    .image-upload-section { border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; background: #fafafa; }
+    .upload-header { font-weight: 600; color: var(--dark-text); margin-bottom: 1rem; font-size: 1rem; }
+    .upload-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .upload-slot { aspect-ratio: 1; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; background: white; position: relative; overflow: hidden; }
+    .upload-slot:hover { border-color: var(--aurum-gold); background: rgba(139, 115, 85, 0.05); }
+    .upload-slot.has-image { border-style: solid; border-color: var(--aurum-gold); }
+    .upload-icon { font-size: 2rem; color: var(--light-text); margin-bottom: 0.5rem; }
+    .upload-text { font-size: 0.8rem; color: var(--light-text); text-align: center; }
+    .image-preview { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+    .remove-image { position: absolute; top: 0.5rem; right: 0.5rem; background: #dc2626; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; opacity: 0; transition: opacity 0.3s ease; }
+    .upload-slot.has-image:hover .remove-image { opacity: 1; }
+    .hidden-file-input { display: none; }
+    .upload-info { font-size: 0.8rem; color: var(--light-text); text-align: center; }
+    .form-actions { display: flex; gap: 1rem; justify-content: flex-end; padding-top: 2rem; border-top: 1px solid var(--border-color); margin-top: 2rem; }
+    .btn { padding: 0.8rem 2rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+    .btn-primary { background: var(--aurum-gold); color: white; }
+    .btn-primary:hover { background: #6B5B47; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-secondary { background: #6b7280; color: white; }
+    .btn-secondary:hover { background: #4b5563; transform: translateY(-1px); }
+    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10002; display: none; justify-content: center; align-items: center; }
+    .loading-overlay.show { display: flex; }
+    .loading-content { background: white; border-radius: 12px; padding: 2rem; text-align: center; max-width: 300px; }
+    .loading-spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--aurum-gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .error-message { color: #dc2626; font-size: 0.8rem; margin-top: 0.25rem; display: none; }
+    .error-message.show { display: block; }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .edit-product-container { padding: 1rem; }
+        .form-grid { grid-template-columns: 1fr; gap: 1rem; }
+        .price-section { grid-template-columns: 1fr; }
+        .size-variants { grid-template-columns: 1fr; }
+        .upload-grid { grid-template-columns: repeat(2, 1fr); }
+        .form-actions { flex-direction: column; }
+        .edit-product-header { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+        .upload-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<!-- Alert Container -->
+<div class="alert-container" id="alertContainer"></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p>Updating product...</p>
+    </div>
+</div>
+
+<div class="edit-product-container">
+    <!-- Header -->
+    <div class="edit-product-header">
+        <h1>EDIT PRODUCT</h1>
+        <a href="/admin/products" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Products
+        </a>
+    </div>
+
+    <!-- Product Form -->
+    <div class="product-form-container">
+        <div class="form-header">
+            <i class="fas fa-edit"></i>
+            Edit Product - <%= product.productname %>
+        </div>
+        
+        <form id="editProductForm" class="form-content" enctype="multipart/form-data">
+            <input type="hidden" id="productId" value="<%= product._id %>">
+            
+            <div class="form-grid">
+                <!-- Left Column -->
+                <div class="form-section">
+                    <!-- Product Name -->
+                    <div class="form-group required">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" name="productname" class="form-input" placeholder="Enter product name" value="<%= product.productname %>" required>
+                        <div class="error-message" id="productNameError"></div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group required">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="">Select category</option>
+                        </select>
+                        <div class="error-message" id="categoryError"></div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="form-group">
+                        <label>Pricing</label>
+                        <div class="price-section">
+                            <div>
+                                <label for="regularPrice" style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Regular Price *</label>
+                                <input type="number" id="regularPrice" name="regularprice" class="form-input" placeholder="0.00" min="0" step="0.01" value="<%= product.regularprice %>" required>
+                                <div class="error-message" id="regularPriceError"></div>
+                            </div>
+                            <div>
+                                <label for="salePrice" style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Sale Price</label>
+                                <input type="number" id="salePrice" name="saleprice" class="form-input" placeholder="0.00" min="0" step="0.01" value="<%= product.saleprice || '' %>">
+                                <div class="error-message" id="salePriceError"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="form-section">
+                    <!-- Description -->
+                    <div class="form-group required">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" class="form-input form-textarea" placeholder="Enter product description" required><%= product.description %></textarea>
+                        <div class="error-message" id="descriptionError"></div>
+                    </div>
+                </div>
+
+                <!-- Size Variants Section -->
+                <div class="form-section full-width">
+                    <div class="variants-section">
+                        <div class="variants-header">
+                            <i class="fas fa-tags"></i>
+                            Size Variants & Stock
+                        </div>
+                        <div class="size-variants" id="sizeVariants">
+                            <div class="size-variant">
+                                <div class="size-header">
+                                    <input type="checkbox" class="size-checkbox" id="small" value="S">
+                                    <label for="small" class="size-label">Small</label>
+                                </div>
+                                <input type="number" class="quantity-input" placeholder="Quantity" min="0" disabled data-size="S">
+                            </div>
+                            <div class="size-variant">
+                                <div class="size-header">
+                                    <input type="checkbox" class="size-checkbox" id="medium" value="M">
+                                    <label for="medium" class="size-label">Medium</label>
+                                </div>
+                                <input type="number" class="quantity-input" placeholder="Quantity" min="0" disabled data-size="M">
+                            </div>
+                            <div class="size-variant">
+                                <div class="size-header">
+                                    <input type="checkbox" class="size-checkbox" id="large" value="L">
+                                    <label for="large" class="size-label">Large</label>
+                                </div>
+                                <input type="number" class="quantity-input" placeholder="Quantity" min="0" disabled data-size="L">
+                            </div>
+                            <div class="size-variant">
+                                <div class="size-header">
+                                    <input type="checkbox" class="size-checkbox" id="extralarge" value="XL">
+                                    <label for="extralarge" class="size-label">Extra Large</label>
+                                </div>
+                                <input type="number" class="quantity-input" placeholder="Quantity" min="0" disabled data-size="XL">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="form-section full-width">
+                    <div class="image-upload-section">
+                        <div class="upload-header">
+                            <i class="fas fa-images"></i>
+                            Product Images
+                        </div>
+                        <div class="upload-grid" id="uploadGrid">
+                            <!-- Existing images and new upload slots will be populated by JavaScript -->
+                        </div>
+                        <div class="upload-info">
+                            Maximum 10 images. Supported formats: JPG, PNG, WebP. Max 5MB per image.
+                        </div>
+                        
+                        <!-- Hidden file inputs -->
+                        <input type="file" class="hidden-file-input" accept="image/*" multiple>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="/admin/products" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-save"></i>
+                    Update Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const product = <%- JSON.stringify(product) %>;
+    let categories = [];
+    let selectedImages = [];
+    let imagesToRemove = [];
+    let newImages = [];
+
+    // Initialize
+    loadCategories();
+    populateProductData();
+    initializeSizeVariants();
+    initializeImageHandling();
+
+    // Form submission
+    document.getElementById('editProductForm').addEventListener('submit', handleSubmit);
+
+    // Load categories
+    async function loadCategories() {
+        try {
+            const response = await fetch('/admin/api/categories?limit=100');
+            const data = await response.json();
+            
+            if (data.success) {
+            categories = data.data.categories || [];
+
+                populateCategories();
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            showAlert('Failed to load categories', 'error');
+        }
+    }
+
+   function populateCategories(){
+  const select = document.getElementById('category');
+  select.innerHTML = '<option value="">Select Category</option>'; // Clear previous options
+  categories.forEach(category => {
+    if(category.islisted){  // Correct field name for active categories
+      const option = document.createElement('option');
+      option.value = category._id;
+      option.textContent = category.categoryname;  // Correct field for category name
+      select.appendChild(option);
+    }
+  });
+}
+
+
+    function populateProductData() {
+        // Populate existing variants
+        if (product.variants && product.variants.length > 0) {
+            product.variants.forEach(variant => {
+                const checkbox = document.querySelector(`input[value="${variant.size}"]`);
+                const quantityInput = document.querySelector(`input[data-size="${variant.size}"]`);
+                
+                if (checkbox && quantityInput) {
+                    checkbox.checked = true;
+                    checkbox.closest('.size-variant').classList.add('selected');
+                    quantityInput.disabled = false;
+                    quantityInput.required = true;
+                    quantityInput.value = variant.quantity;
+                }
+            });
+        }
+    }
+
+    // Initialize size variants (same as add-product)
+    function initializeSizeVariants() {
+        const checkboxes = document.querySelectorAll('.size-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const variant = this.closest('.size-variant');
+                const quantityInput = variant.querySelector('.quantity-input');
+                
+                if (this.checked) {
+                    variant.classList.add('selected');
+                    quantityInput.disabled = false;
+                    quantityInput.required = true;
+                    quantityInput.focus();
+                } else {
+                    variant.classList.remove('selected');
+                    quantityInput.disabled = true;
+                    quantityInput.required = false;
+                    quantityInput.value = '';
+                }
+            });
+        });
+    }
+
+    // Initialize image handling
+    function initializeImageHandling() {
+        const uploadGrid = document.getElementById('uploadGrid');
+        
+        // Display existing images
+        selectedImages = [...(product.image || [])];
+        renderImages();
+        
+        // Setup file input
+        const fileInput = document.querySelector('.hidden-file-input');
+        fileInput.addEventListener('change', handleNewImages);
+    }
+
+    function renderImages() {
+        const uploadGrid = document.getElementById('uploadGrid');
+        uploadGrid.innerHTML = '';
+        
+        // Render existing images
+        selectedImages.forEach((imageUrl, index) => {
+            if (imageUrl) {
+                const slot = document.createElement('div');
+                slot.className = 'upload-slot has-image';
+                slot.innerHTML = `
+                    <img src="${imageUrl}" alt="Product Image" class="image-preview">
+                    <button type="button" class="remove-image" onclick="removeExistingImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                uploadGrid.appendChild(slot);
+            }
+        });
+        
+        // Render new image previews
+        newImages.forEach((file, index) => {
+            const slot = document.createElement('div');
+            slot.className = 'upload-slot has-image';
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                slot.innerHTML = `
+                    <img src="${e.target.result}" alt="New Image" class="image-preview">
+                    <button type="button" class="remove-image" onclick="removeNewImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            };
+            reader.readAsDataURL(file);
+            uploadGrid.appendChild(slot);
+        });
+        
+        // Add upload slots if under limit
+        const totalImages = selectedImages.filter(img => img).length + newImages.length;
+        if (totalImages < 10) {
+            const slot = document.createElement('div');
+            slot.className = 'upload-slot';
+            slot.onclick = () => document.querySelector('.hidden-file-input').click();
+            slot.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="upload-text">Click to add image</div>
+            `;
+            uploadGrid.appendChild(slot);
+        }
+    }
+
+    function handleNewImages(event) {
+        const files = Array.from(event.target.files);
+        
+        files.forEach(file => {
+            // Validate file
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            if (file.size > maxSize) {
+                showAlert('Image size must be less than 5MB', 'error');
+                return;
+            }
+
+            if (!allowedTypes.includes(file.type)) {
+                showAlert('Only JPG, PNG, and WebP images are allowed', 'error');
+                return;
+            }
+
+            const totalImages = selectedImages.filter(img => img).length + newImages.length;
+            if (totalImages >= 10) {
+                showAlert('Maximum 10 images allowed', 'error');
+                return;
+            }
+
+            newImages.push(file);
+        });
+        
+        renderImages();
+        event.target.value = ''; // Clear file input
+    }
+
+    window.removeExistingImage = function(index) {
+        const imageUrl = selectedImages[index];
+        imagesToRemove.push(imageUrl);
+        selectedImages[index] = null;
+        renderImages();
+    };
+
+    window.removeNewImage = function(index) {
+        newImages.splice(index, 1);
+        renderImages();
+    };
+
+    // Form validation (same as add-product)
+    function validateForm() {
+        let isValid = true;
+        
+        // Clear previous errors
+        document.querySelectorAll('.error-message').forEach(elem => {
+            elem.classList.remove('show');
+            elem.textContent = '';
+        });
+        
+        document.querySelectorAll('.form-input').forEach(elem => {
+            elem.classList.remove('error');
+        });
+
+        // Product name
+        const productName = document.getElementById('productName');
+        if (!productName.value.trim()) {
+            showFieldError('productNameError', 'Product name is required');
+            productName.classList.add('error');
+            isValid = false;
+        }
+
+        // Category
+        const category = document.getElementById('category');
+        if (!category.value) {
+            showFieldError('categoryError', 'Category is required');
+            category.classList.add('error');
+            isValid = false;
+        }
+
+        // Description
+        const description = document.getElementById('description');
+        if (!description.value.trim()) {
+            showFieldError('descriptionError', 'Description is required');
+            description.classList.add('error');
+            isValid = false;
+        }
+
+        // Regular price
+        const regularPrice = document.getElementById('regularPrice');
+        if (!regularPrice.value || parseFloat(regularPrice.value) <= 0) {
+            showFieldError('regularPriceError', 'Valid regular price is required');
+            regularPrice.classList.add('error');
+            isValid = false;
+        }
+
+        // Sale price validation
+        const salePrice = document.getElementById('salePrice');
+        if (salePrice.value && parseFloat(salePrice.value) >= parseFloat(regularPrice.value)) {
+            showFieldError('salePriceError', 'Sale price must be less than regular price');
+            salePrice.classList.add('error');
+            isValid = false;
+        }
+
+        // At least one size variant
+        const checkedVariants = document.querySelectorAll('.size-checkbox:checked');
+        if (checkedVariants.length === 0) {
+            showAlert('Please select at least one size variant', 'error');
+            isValid = false;
+        }
+
+        // Validate quantities for selected variants
+        checkedVariants.forEach(checkbox => {
+            const variant = checkbox.closest('.size-variant');
+            const quantityInput = variant.querySelector('.quantity-input');
+            
+            if (!quantityInput.value || parseInt(quantityInput.value) < 0) {
+                quantityInput.style.borderColor = '#dc2626';
+                isValid = false;
+            } else {
+                quantityInput.style.borderColor = '';
+            }
+        });
+
+        // At least one image
+        const totalImages = selectedImages.filter(img => img).length + newImages.length;
+        if (totalImages === 0) {
+            showAlert('Please keep at least one product image', 'error');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function showFieldError(fieldId, message) {
+        const errorElement = document.getElementById(fieldId);
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
+
+    // Form submission
+    async function handleSubmit(e) {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        try {
+            // Show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating Product...';
+            loadingOverlay.classList.add('show');
+
+            // Prepare form data
+            const formData = new FormData();
+            
+            // Basic product info
+            formData.append('productname', document.getElementById('productName').value.trim());
+            formData.append('category', document.getElementById('category').value);
+            formData.append('description', document.getElementById('description').value.trim());
+            formData.append('regularprice', document.getElementById('regularPrice').value);
+            
+            const salePrice = document.getElementById('salePrice').value;
+            if (salePrice) {
+                formData.append('saleprice', salePrice);
+            }
+
+            // Size variants
+            const variants = [];
+            const checkedVariants = document.querySelectorAll('.size-checkbox:checked');
+            
+            checkedVariants.forEach(checkbox => {
+                const variant = checkbox.closest('.size-variant');
+                const quantityInput = variant.querySelector('.quantity-input');
+                const size = checkbox.value;
+                const quantity = parseInt(quantityInput.value) || 0;
+                
+                variants.push({
+                    size: size,
+                    quantity: quantity,
+                    sku: `${document.getElementById('productName').value.replace(/\s+/g, '-').toUpperCase()}-${size}-${product._id}`
+                });
+            });
+            
+            formData.append('variants', JSON.stringify(variants));
+
+            // Images to remove
+            if (imagesToRemove.length > 0) {
+                formData.append('removeImages', JSON.stringify(imagesToRemove));
+            }
+
+            // New images
+            newImages.forEach((file) => {
+                formData.append('productImages', file);
+            });
+
+            // Submit form
+            const response = await fetch(`/admin/api/products/${product._id}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert('✅ Product updated successfully!', 'success');
+                
+                // Redirect after success
+                setTimeout(() => {
+                    window.location.href = '/admin/products';
+                }, 2000);
+                
+            } else {
+                throw new Error(data.message || 'Failed to update product');
+            }
+
+        } catch (error) {
+            console.error('Error updating product:', error);
+            showAlert(`❌ Failed to update product: ${error.message}`, 'error');
+        } finally {
+            // Hide loading
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+            loadingOverlay.classList.remove('show');
+        }
+    }
+
+    // Alert system (same as other pages)
+    function showAlert(message, type = 'success', duration = 5000) {
+        const alertContainer = document.getElementById('alertContainer');
+        
+        const alertId = 'alert_' + Date.now();
+        const alertElement = document.createElement('div');
+        alertElement.id = alertId;
+        alertElement.className = `alert ${type}`;
+        alertElement.innerHTML = `
+            <button class="alert-close" onclick="closeAlert('${alertId}')">&times;</button>
+            <strong>${type.charAt(0).toUpperCase() + type.slice(1)}:</strong> ${message}
+        `;
+        
+        alertContainer.appendChild(alertElement);
+        
+        setTimeout(() => {
+            alertElement.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            closeAlert(alertId);
+        }, duration);
+    }
+
+    window.closeAlert = function(alertId) {
+        const alertElement = document.getElementById(alertId);
+        if (alertElement) {
+            alertElement.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (alertElement.parentNode) {
+                    alertElement.parentNode.removeChild(alertElement);
+                }
+            }, 300);
+        }
+    };
+});
+</script>
+
+</main>
+</body>
+</html>

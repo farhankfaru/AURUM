@@ -1,0 +1,1633 @@
+<%- include('../partials/admin/header', { 
+    title: 'Product Management - AURUM Admin',
+    pageTitle: 'Product Management',
+    currentPage: 'products'
+}) %>
+
+<style>
+    /* Product Management Specific Styles */
+    .products-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Alert System */
+    .alert-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 10001;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border-left: 5px solid;
+        animation: slideInRight 0.3s ease;
+        position: relative;
+    }
+
+    .alert.show { display: block; }
+    .alert.success { background: #d1fae5; color: #065f46; border-left-color: #10b981; }
+    .alert.error { background: #fee2e2; color: #991b1b; border-left-color: #ef4444; }
+    .alert.warning { background: #fef3c7; color: #92400e; border-left-color: #f59e0b; }
+
+    .alert-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+    }
+
+    .alert-close:hover { opacity: 1; }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(100%); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Header Section */
+    .products-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .products-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        letter-spacing: 0.5px;
+    }
+
+    .add-product-btn {
+        background: var(--aurum-gold);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .add-product-btn:hover {
+        background: #6B5B47;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+    }
+
+    .products-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        min-width: 120px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--aurum-gold);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    /* Search and Filter Section */
+    .search-filter-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .search-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--aurum-gold);
+        box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--light-text);
+    }
+
+    .filter-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: white;
+        min-width: 120px;
+    }
+
+    .reset-btn {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .reset-btn:hover {
+        background: #4b5563;
+    }
+
+    /* Table Container with Scroll */
+    .products-table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 600px;
+    }
+
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1200px;
+    }
+
+    .products-table th {
+        background: var(--aurum-gold);
+        color: white;
+        padding: 1.2rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9rem;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .products-table td {
+        padding: 1.2rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+
+    .products-table tr:hover {
+        background: #fafafa;
+    }
+
+    /* Product Image */
+    .product-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid var(--border-color);
+    }
+
+    .image-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+        color: var(--light-text);
+    }
+
+    /* Product Info */
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.25rem;
+    }
+
+    .product-category {
+        font-size: 0.8rem;
+        color: var(--light-text);
+        background: #f8f9fa;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    /* Price Display */
+    .price-display {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .regular-price {
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    .sale-price {
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+    .price-crossed {
+        text-decoration: line-through;
+        color: var(--light-text);
+        font-size: 0.85rem;
+    }
+
+    /* Stock Display */
+    .stock-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stock-high { color: #16a34a; }
+    .stock-medium { color: #eab308; }
+    .stock-low { color: #dc2626; }
+    .stock-out { color: #6b7280; }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-blocked {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-out-of-stock {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    /* Offer Badge */
+    .offer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.5rem 0.8rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        white-space: nowrap;
+    }
+
+    .btn-edit {
+        background: var(--aurum-gold);
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #6B5B47;
+        transform: translateY(-1px);
+    }
+
+    .btn-offer {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .btn-offer:hover {
+        background: #d97706;
+    }
+
+    .btn-offer.has-offer {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-offer.has-offer:hover {
+        background: #059669;
+    }
+
+    .btn-list {
+        background: #16a34a;
+        color: white;
+    }
+
+    .btn-list:hover {
+        background: #15803d;
+    }
+
+    .btn-unlist {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-unlist:hover {
+        background: #b91c1c;
+    }
+
+    .btn-delete {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #374151;
+    }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 1rem;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .page-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--dark-text);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+        background: var(--bg-main);
+    }
+
+    .page-btn.active {
+        background: var(--aurum-gold);
+        color: white;
+        border-color: var(--aurum-gold);
+    }
+
+    .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Modal Styles - FIXED Z-INDEX */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* CRITICAL: Confirmation modal higher z-index */
+    #confirmModal {
+        z-index: 1100 !important;
+    }
+
+    #offerModal {
+        z-index: 1000;
+    }
+
+    /* Lower offer modal when confirmation is shown */
+    #offerModal.behind {
+        z-index: 999;
+    }
+
+    .modal {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: modalSlide 0.3s ease;
+    }
+
+    .offer-modal {
+        max-width: 600px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes modalSlide {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal h3 {
+        margin-bottom: 1rem;
+        color: var(--dark-text);
+        font-size: 1.3rem;
+    }
+
+    .modal p {
+        margin-bottom: 1.5rem;
+        color: var(--light-text);
+        line-height: 1.5;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    .modal-btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .modal-btn.primary {
+        background: var(--aurum-gold);
+        color: white;
+    }
+
+    .modal-btn.primary:hover {
+        background: #6B5B47;
+    }
+
+    .modal-btn.secondary {
+        background: #f8f9fa;
+        color: var(--dark-text);
+    }
+
+    .modal-btn.secondary:hover {
+        background: #e9ecef;
+    }
+
+    .modal-btn.danger {
+        background: #dc2626;
+        color: white;
+    }
+
+    .modal-btn.danger:hover {
+        background: #b91c1c;
+    }
+
+    /* Offer Modal Specific Styles */
+    .offer-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .offer-type-selection {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .offer-type-option {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .offer-type-option.selected {
+        border-color: var(--aurum-gold);
+        background: rgba(139, 115, 85, 0.1);
+    }
+
+    .offer-type-option:hover {
+        border-color: var(--aurum-gold);
+    }
+
+    .offer-input-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .offer-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .offer-input:focus {
+        outline: none;
+        border-color: var(--aurum-gold);
+    }
+
+    .offer-unit {
+        font-weight: 600;
+        color: var(--dark-text);
+        min-width: 30px;
+    }
+
+    .offer-preview {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: var(--dark-text);
+    }
+
+    .offer-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+
+    .offer-modal-left {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .offer-modal-right {
+        display: flex;
+        gap: 1rem;
+    }
+
+    /* Loading and Empty States */
+    .loading, .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--aurum-gold);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--aurum-gold);
+        margin-bottom: 1rem;
+    }
+</style>
+
+<body>
+
+<!-- Alert Container -->
+<div class="alert-container" id="alertContainer"></div>
+
+<div class="products-container">
+    <!-- Products Header -->
+    <div class="products-header">
+        <h1>PRODUCT MANAGEMENT</h1>
+        <a href="/admin/add-products" class="add-product-btn">
+            <i class="fas fa-plus"></i>
+            Add Product
+        </a>
+    </div>
+
+    <!-- Statistics -->
+    <div class="products-stats" id="productStats">
+        <div class="stat-card">
+            <div class="stat-number" id="totalProducts">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="activeProducts">0</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="blockedProducts">0</div>
+            <div class="stat-label">Blocked</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="lowStock">0</div>
+            <div class="stat-label">Low Stock</div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+        <div class="search-controls">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search products by name or category...">
+            </div>
+            <select id="categoryFilter" class="filter-select">
+                <option value="all">All Categories</option>
+            </select>
+            <select id="statusFilter" class="filter-select">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="blocked">Blocked</option>
+            </select>
+            <button id="resetBtn" class="reset-btn">
+                <i class="fas fa-undo-alt"></i>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="products-table-container">
+        <div class="table-scroll">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>IMAGE</th>
+                        <th>PRODUCT</th>
+                        <th>CATEGORY</th>
+                        <th>REGULAR PRICE</th>
+                        <th>SALE PRICE</th>
+                        <th>STOCK</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <tr>
+                        <td colspan="8" class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading products...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-info" id="paginationInfo">
+            Showing 0 to 0 of 0 products
+        </div>
+        <div class="pagination-controls" id="paginationControls">
+            <!-- Pagination buttons will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <h3 id="modalTitle">Confirm Action</h3>
+        <p id="modalMessage">Are you sure you want to perform this action?</p>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" id="modalCancel">Cancel</button>
+            <button class="modal-btn primary" id="modalConfirm">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Offer Management Modal -->
+<div class="modal-overlay" id="offerModal">
+    <div class="modal offer-modal">
+        <h3 id="offerModalTitle">Add Offer</h3>
+        <form class="offer-form" id="offerForm">
+            <!-- Product Info -->
+            <div class="offer-preview" id="productInfo">
+                <strong id="offerProductName"></strong><br>
+                Regular Price: ₹<span id="offerRegularPrice"></span>
+            </div>
+
+            <!-- Offer Type Selection -->
+            <div>
+                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Offer Type</label>
+                <div class="offer-type-selection">
+                    <div class="offer-type-option" data-type="percentage">
+                        <i class="fas fa-percentage" style="font-size: 1.5rem; color: var(--aurum-gold); margin-bottom: 0.5rem;"></i>
+                        <div style="font-weight: 600;">Percentage</div>
+                        <div style="font-size: 0.8rem; color: #666;">% off regular price</div>
+                    </div>
+                    <div class="offer-type-option" data-type="fixed">
+                        <i class="fas fa-rupee-sign" style="font-size: 1.5rem; color: var(--aurum-gold); margin-bottom: 0.5rem;"></i>
+                        <div style="font-weight: 600;">Fixed Amount</div>
+                        <div style="font-size: 0.8rem; color: #666;">₹ off regular price</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offer Value Input -->
+            <div>
+                <label for="offerValue" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Offer Value</label>
+                <div class="offer-input-group">
+                    <input type="number" id="offerValue" class="offer-input" placeholder="Enter value" min="1" required>
+                    <span class="offer-unit" id="offerUnit">%</span>
+                </div>
+            </div>
+
+            <!-- Offer Preview -->
+            <div class="offer-preview" id="offerPreview" style="display: none;">
+                <div><strong>Offer Preview:</strong></div>
+                <div>Discount: ₹<span id="discountAmount">0</span></div>
+                <div>Sale Price: ₹<span id="finalPrice">0</span></div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="offer-modal-actions">
+                <div class="offer-modal-left">
+                    <button type="button" class="modal-btn danger" id="removeOfferBtn" style="display: none;">
+                        <i class="fas fa-trash"></i>
+                        Remove Offer
+                    </button>
+                </div>
+                <div class="offer-modal-right">
+                    <button type="button" class="modal-btn secondary" id="offerCancel">Cancel</button>
+                    <button type="submit" class="modal-btn primary" id="offerSubmit">
+                        <i class="fas fa-plus"></i>
+                        Add Offer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let allProducts = [];
+    let filteredProducts = [];
+    let categories = [];
+    let currentPage = 1;
+    let productsPerPage = 7;
+    let totalPages = 1;
+    let currentOfferProductId = null;
+    let currentOfferType = 'percentage';
+
+    // Initialize
+    loadCategories();
+    loadAllProducts();
+    initializeOfferModal();
+
+    // Event Listeners
+    document.getElementById('searchInput').addEventListener('input', debounce(handleSearch, 300));
+    document.getElementById('categoryFilter').addEventListener('change', handleFilter);
+    document.getElementById('statusFilter').addEventListener('change', handleFilter);
+    document.getElementById('resetBtn').addEventListener('click', resetFilters);
+
+    // Load categories - Fixed API structure handling
+    async function loadCategories() {
+        try {
+            console.log('Loading categories...');
+            const response = await fetch('/admin/api/categories?limit=100');
+            const data = await response.json();
+            console.log('Categories response:', data);
+            
+            if (data.success) {
+                // Handle multiple possible response structures
+                categories = data.categories || data.data?.categories || data.data || [];
+                console.log('Loaded categories:', categories);
+                populateCategoryFilter();
+            } else {
+                console.error('Categories API returned success=false:', data.message);
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            showAlert('Failed to load categories', 'error');
+        }
+    }
+
+    function populateCategoryFilter() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+        
+        if (Array.isArray(categories)) {
+            categories.forEach(category => {
+                if (category.islisted) {
+                    const option = document.createElement('option');
+                    option.value = category._id;
+                    option.textContent = category.categoryname;
+                    categoryFilter.appendChild(option);
+                }
+            });
+        }
+        console.log('Category filter populated with', categoryFilter.children.length - 1, 'categories');
+    }
+
+    // Load products - Fixed API structure handling
+    async function loadAllProducts() {
+        try {
+            console.log('Loading products...');
+            showLoading(true);
+
+            const [productsResponse, statsResponse] = await Promise.all([
+                fetch('/admin/api/products?limit=100'),
+                fetch('/admin/api/products/stats')
+            ]);
+
+            console.log('Products response status:', productsResponse.status);
+            console.log('Stats response status:', statsResponse.status);
+
+            if (!productsResponse.ok || !statsResponse.ok) {
+                throw new Error(`HTTP Error: Products ${productsResponse.status}, Stats ${statsResponse.status}`);
+            }
+
+            const [productsData, statsData] = await Promise.all([
+                productsResponse.json(),
+                statsResponse.json()
+            ]);
+
+            console.log('Products response:', productsData);
+            console.log('Stats response:', statsData);
+
+            if (productsData.success) {
+                // Access products from the data wrapper
+                allProducts = productsData.data.products || [];
+                console.log('Loaded products:', allProducts.length);
+                
+                filteredProducts = [...allProducts];
+                
+                // Access stats from the data wrapper
+                const stats = statsData.success ? statsData.data : {};
+                updateStats(stats);
+                
+                renderProductsTable();
+                renderPagination();
+            } else {
+                throw new Error('Products API returned success=false: ' + productsData.message);
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+            showAlert('Failed to load products. Please refresh the page.', 'error');
+            showEmptyState('Error loading products');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Search and filter functions
+    function handleSearch() {
+        applyFilters();
+    }
+
+    function handleFilter() {
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        filteredProducts = allProducts.filter(product => {
+            const matchesSearch = searchTerm === '' || 
+                (product.productname && product.productname.toLowerCase().includes(searchTerm)) ||
+                (product.category?.categoryname && product.category.categoryname.toLowerCase().includes(searchTerm));
+            
+            const matchesCategory = categoryFilter === 'all' || product.category?._id === categoryFilter;
+            
+            let matchesStatus = true;
+            if (statusFilter === 'active') {
+                matchesStatus = product.status === 'available' && !product.isblock;
+            } else if (statusFilter === 'inactive') {
+                matchesStatus = product.status === 'out_of_stock';
+            } else if (statusFilter === 'blocked') {
+                matchesStatus = product.isblock === true;
+            }
+            
+            return matchesSearch && matchesCategory && matchesStatus;
+        });
+        
+        currentPage = 1;
+        renderProductsTable();
+        renderPagination();
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'all';
+        document.getElementById('statusFilter').value = 'all';
+        filteredProducts = [...allProducts];
+        currentPage = 1;
+        renderProductsTable();
+        renderPagination();
+    }
+
+    // Update statistics
+    function updateStats(stats) {
+        document.getElementById('totalProducts').textContent = stats.total || 0;
+        document.getElementById('activeProducts').textContent = stats.active || 0;
+        document.getElementById('blockedProducts').textContent = stats.blocked || 0;
+        document.getElementById('lowStock').textContent = stats.lowStock || 0;
+    }
+
+    // Render products table
+    function renderProductsTable() {
+        const tbody = document.getElementById('productsTableBody');
+        
+        if (filteredProducts.length === 0) {
+            showEmptyState();
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+        tbody.innerHTML = productsToShow.map(product => {
+            const regularPrice = product.regularprice || 0;
+            const salePrice = product.saleprice || 0;
+            const totalStock = product.variants ? product.variants.reduce((sum, variant) => sum + (variant.quantity || 0), 0) : 0;
+            const hasOffer = product.productoffer > 0;
+            
+            return `
+                <tr>
+                    <td>
+                        ${product.image?.length > 0 ? 
+                            `<img src="${product.image[0]}" alt="${product.productname}" class="product-image">` :
+                            `<div class="image-placeholder"><i class="fas fa-image"></i></div>`
+                        }
+                    </td>
+                    <td>
+                        <div class="product-info">
+                            <div class="product-name">${product.productname || 'Untitled Product'}</div>
+                            <div class="product-category">${product.category?.categoryname || 'Uncategorized'}</div>
+                            ${hasOffer ? `<div class="offer-badge"><i class="fas fa-tag"></i> ${product.productoffer}${product.offerType === 'fixed' ? '₹' : '%'} OFF</div>` : ''}
+                        </div>
+                    </td>
+                    <td>${product.category?.categoryname || 'Uncategorized'}</td>
+                    <td>
+                        <div class="price-display">
+                            <span class="regular-price ${salePrice > 0 ? 'price-crossed' : ''}">
+                                ₹${regularPrice}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        ${salePrice > 0 ? 
+                            `<span class="sale-price">₹${salePrice}</span>` : 
+                            '<span style="color: #666;">—</span>'
+                        }
+                    </td>
+                    <td>
+                        <div class="stock-info ${getStockClass(totalStock)}">
+                            ${totalStock}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(product)}">
+                            ${getStatusText(product)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="/admin/edit-products/${product._id}" class="action-btn btn-edit">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </a>
+                            <button class="action-btn btn-offer ${hasOffer ? 'has-offer' : ''}" 
+                                    onclick="openOfferModal('${product._id}', '${product.productname}', ${regularPrice}, ${hasOffer})">
+                                <i class="fas fa-${hasOffer ? 'edit' : 'tag'}"></i>
+                                ${hasOffer ? 'Edit Offer' : 'Add Offer'}
+                            </button>
+                            <button class="action-btn ${product.isblock ? 'btn-list' : 'btn-unlist'}" 
+                                    onclick="toggleProductStatus('${product._id}', '${product.productname}', ${product.isblock})">
+                                <i class="fas fa-toggle-${product.isblock ? 'on' : 'off'}"></i>
+                                ${product.isblock ? 'List' : 'Unlist'}
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteProduct('${product._id}', '${product.productname}')">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function getStockClass(stock) {
+        if (stock === 0) return 'stock-out';
+        if (stock <= 5) return 'stock-low';
+        if (stock <= 20) return 'stock-medium';
+        return 'stock-high';
+    }
+
+    function getStatusClass(product) {
+        if (product.isblock) return 'status-blocked';
+        if (product.status === 'out_of_stock') return 'status-out-of-stock';
+        return 'status-active';
+    }
+
+    function getStatusText(product) {
+        if (product.isblock) return 'UNLISTED';
+        if (product.status === 'out_of_stock') return 'OUT OF STOCK';
+        return 'LISTED';
+    }
+
+    // Render pagination
+    function renderPagination() {
+        totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+        const paginationContainer = document.getElementById('paginationContainer');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const paginationControls = document.getElementById('paginationControls');
+
+        if (filteredProducts.length === 0) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        paginationContainer.style.display = 'flex';
+
+        const startIndex = (currentPage - 1) * productsPerPage + 1;
+        const endIndex = Math.min(currentPage * productsPerPage, filteredProducts.length);
+        paginationInfo.textContent = `Showing ${startIndex} to ${endIndex} of ${filteredProducts.length} products`;
+
+        let paginationHTML = '';
+        
+        // Previous button
+        paginationHTML += `
+            <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+        `;
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                paginationHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                paginationHTML += '<span style="padding: 0.5rem;">...</span>';
+            }
+        }
+
+        // Next button
+        paginationHTML += `
+            <button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        paginationControls.innerHTML = paginationHTML;
+    }
+
+    // Change page function
+    window.changePage = function(page) {
+        if (page < 1 || page > totalPages) return;
+        
+        currentPage = page;
+        renderProductsTable();
+        renderPagination();
+    };
+
+    // Initialize offer modal
+    function initializeOfferModal() {
+        const offerTypeOptions = document.querySelectorAll('.offer-type-option');
+        const offerValue = document.getElementById('offerValue');
+        const offerUnit = document.getElementById('offerUnit');
+
+        // Offer type selection
+        offerTypeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                offerTypeOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                currentOfferType = this.dataset.type;
+                
+                if (currentOfferType === 'percentage') {
+                    offerUnit.textContent = '%';
+                    offerValue.max = 90;
+                    offerValue.placeholder = 'Enter percentage (1-90)';
+                } else {
+                    offerUnit.textContent = '₹';
+                    offerValue.max = '';
+                    offerValue.placeholder = 'Enter amount';
+                }
+                
+                calculateOffer();
+            });
+        });
+
+        // Offer value input
+        offerValue.addEventListener('input', calculateOffer);
+
+        // Offer form submission
+        document.getElementById('offerForm').addEventListener('submit', handleOfferSubmit);
+        document.getElementById('offerCancel').addEventListener('click', closeOfferModal);
+        document.getElementById('removeOfferBtn').addEventListener('click', handleRemoveOffer);
+
+        // Select percentage by default
+        if (offerTypeOptions.length > 0) {
+            offerTypeOptions[0].click();
+        }
+    }
+
+    function calculateOffer() {
+        const offerValue = parseFloat(document.getElementById('offerValue').value) || 0;
+        const regularPrice = parseFloat(document.getElementById('offerRegularPrice').textContent) || 0;
+        const offerPreview = document.getElementById('offerPreview');
+        const discountAmount = document.getElementById('discountAmount');
+        const finalPrice = document.getElementById('finalPrice');
+
+        if (offerValue > 0 && regularPrice > 0) {
+            let discount, salePrice;
+
+            if (currentOfferType === 'percentage') {
+                discount = Math.round((regularPrice * offerValue) / 100);
+                salePrice = regularPrice - discount;
+            } else {
+                discount = offerValue;
+                salePrice = regularPrice - offerValue;
+            }
+
+            if (salePrice > 0) {
+                discountAmount.textContent = discount;
+                finalPrice.textContent = salePrice;
+                offerPreview.style.display = 'block';
+            } else {
+                offerPreview.style.display = 'none';
+            }
+        } else {
+            offerPreview.style.display = 'none';
+        }
+    }
+
+    // Open offer modal
+    window.openOfferModal = function(productId, productName, regularPrice, hasOffer) {
+        currentOfferProductId = productId;
+        
+        document.getElementById('offerProductName').textContent = productName;
+        document.getElementById('offerRegularPrice').textContent = regularPrice;
+        
+        const modal = document.getElementById('offerModal');
+        const modalTitle = document.getElementById('offerModalTitle');
+        const submitBtn = document.getElementById('offerSubmit');
+        const removeBtn = document.getElementById('removeOfferBtn');
+
+        if (hasOffer) {
+            modalTitle.textContent = 'Edit Offer';
+            submitBtn.innerHTML = '<i class="fas fa-edit"></i> Update Offer';
+            removeBtn.style.display = 'block';
+            
+            // Load existing offer data
+            loadExistingOffer(productId);
+        } else {
+            modalTitle.textContent = 'Add Offer';
+            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Offer';
+            removeBtn.style.display = 'none';
+            
+            // Reset form
+            document.getElementById('offerValue').value = '';
+            const firstOption = document.querySelector('.offer-type-option');
+            if (firstOption) firstOption.click();
+        }
+        
+        modal.classList.add('show');
+        document.getElementById('offerValue').focus();
+    };
+
+    async function loadExistingOffer(productId) {
+        try {
+            const product = allProducts.find(p => p._id === productId);
+            if (product && product.productoffer > 0) {
+                const offerType = product.offerType || 'percentage';
+                
+                // Select offer type
+                const offerTypeOption = document.querySelector(`.offer-type-option[data-type="${offerType}"]`);
+                if (offerTypeOption) offerTypeOption.click();
+                
+                // Set offer value
+                document.getElementById('offerValue').value = product.productoffer;
+                
+                calculateOffer();
+            }
+        } catch (error) {
+            console.error('Error loading existing offer:', error);
+        }
+    }
+
+    function closeOfferModal() {
+        document.getElementById('offerModal').classList.remove('show');
+        document.getElementById('offerValue').value = '';
+        document.getElementById('offerPreview').style.display = 'none';
+        currentOfferProductId = null;
+    }
+
+    async function handleOfferSubmit(e) {
+        e.preventDefault();
+        
+        const offerValue = parseFloat(document.getElementById('offerValue').value);
+        const regularPrice = parseFloat(document.getElementById('offerRegularPrice').textContent);
+
+        if (!offerValue || offerValue < 1) {
+            showAlert('Please enter a valid offer value', 'error');
+            return;
+        }
+
+        if (currentOfferType === 'percentage' && offerValue > 90) {
+            showAlert('Percentage offer cannot exceed 90%', 'error');
+            return;
+        }
+
+        if (currentOfferType === 'fixed' && offerValue >= regularPrice) {
+            showAlert('Fixed offer amount cannot be greater than or equal to regular price', 'error');
+            return;
+        }
+
+        const isEditing = document.getElementById('offerModalTitle').textContent === 'Edit Offer';
+        
+        try {
+            showAlert('Processing offer...', 'warning', 2000);
+            
+            const url = `/admin/api/products/${currentOfferProductId}/${isEditing ? 'edit-offer' : 'add-offer'}`;
+            const method = isEditing ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    offerType: currentOfferType,
+                    offerValue: offerValue
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert(`✅ Offer ${isEditing ? 'updated' : 'added'} successfully`, 'success');
+                closeOfferModal();
+                loadAllProducts(); // Reload products
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error managing offer:', error);
+            showAlert(`❌ Failed to ${isEditing ? 'update' : 'add'} offer: ${error.message}`, 'error');
+        }
+    }
+
+    // FIXED: Remove offer function with proper z-index handling
+    async function handleRemoveOffer() {
+        // Lower the offer modal z-index temporarily
+        const offerModal = document.getElementById('offerModal');
+        offerModal.classList.add('behind');
+        
+        const confirmed = await showConfirmModal(
+            'Remove Offer',
+            'Are you sure you want to remove this offer? This action cannot be undone.',
+            'danger'
+        );
+
+        // Restore offer modal z-index
+        offerModal.classList.remove('behind');
+
+        if (!confirmed) return;
+
+        try {
+            showAlert('Removing offer...', 'warning', 2000);
+            
+            const response = await fetch(`/admin/api/products/${currentOfferProductId}/remove-offer`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert('✅ Offer removed successfully', 'success');
+                closeOfferModal();
+                loadAllProducts();
+            } else {
+                throw new Error(data.message || 'Failed to remove offer');
+            }
+        } catch (error) {
+            console.error('Error removing offer:', error);
+            showAlert(`❌ Failed to remove offer: ${error.message}`, 'error');
+        }
+    }
+
+    // Product actions with confirmation
+    window.toggleProductStatus = async function(productId, productName, isCurrentlyBlocked) {
+        const action = isCurrentlyBlocked ? 'list' : 'unlist';
+        
+        const confirmed = await showConfirmModal(
+            `${action.charAt(0).toUpperCase() + action.slice(1)} Product`,
+            `Are you sure you want to ${action} "${productName}"?`,
+            isCurrentlyBlocked ? 'primary' : 'danger'
+        );
+
+        if (!confirmed) return;
+
+        try {
+            showAlert(`${action.charAt(0).toUpperCase() + action.slice(1)}ing product...`, 'warning', 2000);
+            
+            const response = await fetch(`/admin/api/products/${productId}/toggle-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert(`✅ ${data.message}`, 'success');
+                loadAllProducts();
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error(`Error ${action}ing product:`, error);
+            showAlert(`❌ Failed to ${action} product`, 'error');
+        }
+    };
+
+    window.deleteProduct = async function(productId, productName) {
+        const confirmed = await showConfirmModal(
+            'Delete Product',
+            `Are you sure you want to delete "${productName}"? This action cannot be undone and will remove all product data including images.`,
+            'danger'
+        );
+
+        if (!confirmed) return;
+
+        try {
+            showAlert('Deleting product...', 'warning', 2000);
+            
+            const response = await fetch(`/admin/api/products/${productId}/delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert('✅ Product deleted successfully', 'success');
+                loadAllProducts();
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            showAlert('❌ Failed to delete product', 'error');
+        }
+    };
+
+    // FIXED: Utility function with proper z-index handling
+    function showConfirmModal(title, message, type = 'primary') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmModal');
+            const titleElement = document.getElementById('modalTitle');
+            const messageElement = document.getElementById('modalMessage');
+            const confirmButton = document.getElementById('modalConfirm');
+            const cancelButton = document.getElementById('modalCancel');
+
+            titleElement.textContent = title;
+            messageElement.textContent = message;
+            
+            confirmButton.className = `modal-btn ${type}`;
+            
+            // Force higher z-index for confirmation modal
+            modal.style.zIndex = '1100';
+            modal.classList.add('show');
+
+            function cleanup() {
+                modal.classList.remove('show');
+                modal.style.zIndex = ''; // Reset z-index
+                confirmButton.removeEventListener('click', onConfirm);
+                cancelButton.removeEventListener('click', onCancel);
+                modal.removeEventListener('click', onOverlayClick);
+            }
+
+            function onConfirm() {
+                cleanup();
+                resolve(true);
+            }
+
+            function onCancel() {
+                cleanup();
+                resolve(false);
+            }
+
+            function onOverlayClick(e) {
+                if (e.target === modal) {
+                    cleanup();
+                    resolve(false);
+                }
+            }
+
+            confirmButton.addEventListener('click', onConfirm);
+            cancelButton.addEventListener('click', onCancel);
+            modal.addEventListener('click', onOverlayClick);
+        });
+    }
+
+    function showAlert(message, type = 'success', duration = 5000) {
+        const alertContainer = document.getElementById('alertContainer');
+        
+        const alertId = 'alert_' + Date.now();
+        const alertElement = document.createElement('div');
+        alertElement.id = alertId;
+        alertElement.className = `alert ${type}`;
+        alertElement.innerHTML = `
+            <button class="alert-close" onclick="closeAlert('${alertId}')">&times;</button>
+            <strong>${type.charAt(0).toUpperCase() + type.slice(1)}:</strong> ${message}
+        `;
+        
+        alertContainer.appendChild(alertElement);
+        
+        setTimeout(() => {
+            alertElement.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            closeAlert(alertId);
+        }, duration);
+    }
+
+    window.closeAlert = function(alertId) {
+        const alertElement = document.getElementById(alertId);
+        if (alertElement) {
+            alertElement.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (alertElement.parentNode) {
+                    alertElement.parentNode.removeChild(alertElement);
+                }
+            }, 300);
+        }
+    };
+
+    function showLoading(show) {
+        const tbody = document.getElementById('productsTableBody');
+        
+        if (show) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading products...</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function showEmptyState(message = 'No products found') {
+        const tbody = document.getElementById('productsTableBody');
+        
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>${message}</h3>
+                    <p>There are no products matching your criteria.</p>
+                </td>
+            </tr>
+        `;
+        
+        document.getElementById('paginationContainer').style.display = 'none';
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+});
+</script>
+
+
